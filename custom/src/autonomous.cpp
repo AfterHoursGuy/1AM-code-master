@@ -244,14 +244,13 @@ void qualsoloawp(){
 void rightsidequal(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   thread([](){
-    doinker(467);
+    doinker(500);
     doinkerup(350);
-    doinker(600);
-    lower_intake.stop();
+    doinker(1200);
   });
   moveToPoint(8, 28, 1, 1000, false, 11); 
-  moveToPoint(34, 42.5, 1, 1000, false, 11.5);
-  turnToAngle(90, 600, true);
+  turnToAngle(45, 600, true);
+  moveToPoint(36, 44, 1, 1000, true, 11.5);
   wait(200, msec);
   thread([](){
     wait(700, msec);
@@ -265,20 +264,25 @@ void rightsidequal(){
   wait(800, msec);
   hood.stop();
   mid_goal.set(false);
+  wait(100, msec);
+  mid_goal.set(true);
+  mid_goal.set(false);
   scraper.set(false);
-  moveToPoint(44, -1, 1, 1400, true, 9);
+  moveToPoint(45, -1, 1, 1400, true, 9);
   scraper.set(true);
   turnToAngle(180, 600);
-  boomerang(45, -20, 1, 180, 0.1, 1000, true, 12); 
+  moveToPoint(45, -20, 1, 1000, true, 12); 
   wait(600, msec);
-  moveToPoint(46, 26, -1, 900, true, 12);
+  moveToPoint(46, 15, -1, 900, true, 12);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2500, msec);
-  moveToPoint(45, -12, 1, 1000, true, 10);
+  hood.stop(coast);
+  moveToPoint(46, -17, 1, 1000, true, 10);
   wait(400, msec); 
   scraper.set(false);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
-  moveToPoint(46, 27, -1, 900, true, 12);
+  moveToPoint(46, 24, -1, 900, true, 12);
+  hood.spin(reverse, 12, voltageUnits::volt);
 
 }
 
