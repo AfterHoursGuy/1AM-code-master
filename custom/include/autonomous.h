@@ -8,3 +8,4 @@ void rightsidequal();
 void qualsoloawp();
 void skills();
 void elimleft();
+void elimright();
