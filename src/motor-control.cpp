@@ -1272,6 +1272,138 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
   is_turning = false;     // Reset turning state
 }
 
+void driveToWallDistance(double target_distance_in, double time_limit_msec, bool exit, double max_output)
+{
+  // Store initial encoder values (still used for heading correction)
+  double start_left = getLeftRotationDegree(), start_right = getRightRotationDegree();
+  stopChassis(vex::brakeType::coast);
+  is_turning = true;
+
+  double threshold = 0.2; // inches tolerance
+  double current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+  double drive_direction = (current_distance_in < target_distance_in) ? 1 : -1;
+
+  double max_slew_fwd = drive_direction > 0 ? max_slew_accel_fwd : max_slew_decel_rev;
+  double max_slew_rev = drive_direction > 0 ? max_slew_decel_fwd : max_slew_accel_rev;
+  bool min_speed = false;
+
+  if (!exit) {
+    // Adjust slew rates and min speed for chaining
+    if (!dir_change_start && dir_change_end) {
+      max_slew_fwd = drive_direction > 0 ? 24 : max_slew_decel_rev;
+      max_slew_rev = drive_direction > 0 ? max_slew_decel_fwd : 24;
+    }
+    if (dir_change_start && !dir_change_end) {
+      max_slew_fwd = drive_direction > 0 ? max_slew_accel_fwd : 24;
+      max_slew_rev = drive_direction > 0 ? 24 : max_slew_accel_rev;
+      min_speed = true;
+    }
+    if (!dir_change_start && !dir_change_end) {
+      max_slew_fwd = 24;
+      max_slew_rev = 24;
+      min_speed = true;
+    }
+  }
+
+  PID pid_distance = PID(distance_kp, distance_ki, distance_kd);
+  PID pid_heading = PID(heading_correction_kp, heading_correction_ki, heading_correction_kd);
+
+  // Configure PID controllers
+  pid_distance.setTarget(target_distance_in);
+  pid_distance.setIntegralMax(3);
+  pid_distance.setSmallBigErrorTolerance(threshold, threshold * 3);
+  pid_distance.setSmallBigErrorDuration(50, 250);
+  pid_distance.setDerivativeTolerance(5);
+
+  pid_heading.setTarget(normalizeTarget(correct_angle));
+  pid_heading.setIntegralMax(0);
+  pid_heading.setIntegralRange(1);
+  pid_heading.setSmallBigErrorTolerance(0, 0);
+  pid_heading.setSmallBigErrorDuration(0, 0);
+  pid_heading.setDerivativeTolerance(0);
+  pid_heading.setArrive(false);
+
+  double start_time = Brain.timer(msec);
+  double left_output = 0, right_output = 0, correction_output = 0;
+  double current_angle = 0;
+  double prev_left_output = 0, prev_right_output = 0;
+
+  // Main PID loop for distance sensor positioning
+  while (((!pid_distance.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit)
+         || (exit == false && ((drive_direction > 0 && current_distance_in > target_distance_in) 
+         || (drive_direction < 0 && current_distance_in < target_distance_in))
+         && Brain.timer(msec) - start_time <= time_limit_msec)) {
+
+    // Update current readings
+    current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+    current_angle = getInertialHeading();
+
+    // PID updates
+    left_output = pid_distance.update(current_distance_in);
+    right_output = left_output;
+    correction_output = pid_heading.update(current_angle);
+    if (pid_distance.targetArrived()) correction_output = 0;
+
+    // Minimum Output Check
+    if (min_speed) {
+      scaleToMin(left_output, right_output, min_output);
+    }
+    if (!exit) {
+      left_output = 24 * drive_direction;
+      right_output = 24 * drive_direction;
+    }
+
+    left_output += correction_output;
+    right_output -= correction_output;
+
+    // Max Output Check
+    scaleToMax(left_output, right_output, max_output);
+
+    // Slew rate limiting
+    if (prev_left_output - left_output > max_slew_rev)
+      left_output = prev_left_output - max_slew_rev;
+    if (prev_right_output - right_output > max_slew_rev)
+      right_output = prev_right_output - max_slew_rev;
+    if (left_output - prev_left_output > max_slew_fwd)
+      left_output = prev_left_output + max_slew_fwd;
+    if (right_output - prev_right_output > max_slew_fwd)
+      right_output = prev_right_output + max_slew_fwd;
+
+    prev_left_output = left_output;
+    prev_right_output = right_output;
+
+    // Apply to chassis
+    driveChassis(left_output * drive_direction, right_output * drive_direction);
+
+    wait(10, msec);
+  }
+
+  if (exit) {
+    prev_left_output = 0;
+    prev_right_output = 0;
+    stopChassis(vex::hold);
+  }
+
+  is_turning = false;
+}
+
+void driveToWall(double target_distance_in, double time_limit_msec, bool exit, double max_output) {
+  // Read current distance from wall (convert mm → inches)
+  double current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+
+  // If sensor returns invalid reading, skip
+  if (current_distance_in <= 0) {
+    Brain.Screen.print("Distance sensor error!");
+    return;
+  }
+
+  // Calculate how far we need to move (positive = forward, negative = backward)
+  double move_distance = current_distance_in - target_distance_in;
+
+  // Call the existing PID-based driveTo
+  driveTo(move_distance, time_limit_msec, exit, max_output);
+}
+
 // ============================================================================
 // TEMPLATE NOTE
 // ============================================================================

@@ -16,6 +16,8 @@ void doinker(int t){
   scraper.set(true);
 }
 
+
+
 void doinkerup(int t){
   wait(t, msec);
   scraper.set(false);
@@ -49,7 +51,13 @@ void exampleAuton() {
 }
 
 void exampleAuton2() {
-  driveTo(2, 2000, true, 6);
+  correct_angle = 0;
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  hood.spin(reverse, 12, voltageUnits::volt);
+  driveToWall(8.4, 10000, true, 6); 
+  wait(500, msec);
+  moveToPoint(3, -5, -1, 8000, true, 6);
+  
 }
 
 void sigsoloAWP(){
@@ -64,8 +72,8 @@ void sigsoloAWP(){
   moveToPoint(4, 23, 1, 1500, true, 10);
   hood.stop(coast);
   turnToAngle(135, 800, true, 12);
-  thread([](){doinker(620);});
-  moveToPoint(28, 4, 1, 1000, true, 12);
+  thread([](){doinker(670);});
+  moveToPoint(33, 4.5, 1, 1000, true, 12);
   turnToAngle(-45, 600);
   mid_goal.set(true); 
   moveToPoint(31, -16, -1, 1000, true, 10);
@@ -312,7 +320,7 @@ void leftsidequal(){
   wait(200, msec);
   turnToAngle(-135, 700);
   wait(200, msec);
-  moveToPoint(10, 31.5, -1, 1400, true, 9);
+  moveToPoint(12, 34, -1, 1400, true, 9);
   hood.spin(fwd, 12, voltageUnits::volt);
   mid_goal.set(true);
   turnToAngle(225, 600, true, 12);
@@ -326,16 +334,16 @@ void leftsidequal(){
     lower_intake.spin(reverse, 12, voltageUnits::volt);
     doinker(800);
   });
-  moveToPoint(-27, -4, 1, 1900, true, 8);
+  moveToPoint(-26, -4, 1, 1900, true, 8);
   turnToAngle(180, 500);
-  moveToPoint(-27.5, -13.5, 1, 1900, true, 8);
+  moveToPoint(-26, -13.5, 1, 1900, true, 8);
   wait(600, msec);
   lower_intake.stop(coast);
-  moveToPoint(-26, 16, -1, 1900, true, 8);
+  moveToPoint(-24, 18, -1, 1900, true, 8);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2500, msec);
-  moveToPoint(-27, -13.5, 1, 1900, true, 8);
+  moveToPoint(-25, -13.5, 1, 1900, true, 8);
 
 }
 
@@ -358,7 +366,7 @@ void skills() {
   hood.stop();
   scraper.set(true);
 
-  moveToPoint(105.75, 32, 1, 2000, true, 6);
+  moveToPoint(105.75, 30.5, 1, 2000, true, 6);
   wait(1800, msec);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   wait(100, msec);
@@ -378,7 +386,7 @@ void skills() {
   moveToPoint(86, -68, 1, 3000, true, 9);
   scraper.set(true);
   turnToAngle(90, 1000);
-  boomerang(102, -66, 1, 90, 0.3, 3500, true, 6);
+  moveToPoint(105, -66, 1, 3500, true, 6);
   wait(1900, msec);
 
   
@@ -395,7 +403,7 @@ void skills() {
   turnToAngle(-90, 600);
   wait(4000, msec);
   hood.stop();
-  moveToPoint(-21.5, -67, 1, 3400, true, 6);
+  moveToPoint(-20.5, -67.8, 1, 3400, true, 6);
   turnToAngle(-90, 800);
   wait(1700, msec);
   moveToPoint(20, -69, -1, 1500, true, 7);
@@ -428,18 +436,21 @@ void elimleft(){
   turnToAngle(-135, 500);
   lower_intake.stop(coast);
   wait(100, msec);
+  scraper.set(false);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
   moveToPoint(-31, 4, 1, 1900, true, 8);
   wait(100, msec);
   turnToAngle(180, 500);
+  scraper.set(true);
   wait(100, msec);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
-  moveToPoint(-27.5, 17, -1, 1200, true, 9);
+  moveToPoint(-26.5, 20, -1, 1500, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
-  moveToPoint(-28, -16, 1, 1200, true, 8);
+  moveToPoint(-27, -16, 1, 1700, true, 7);
   wait(1000, msec);
-  moveToPoint(-27.5, 17, -1, 1200, true, 10);
+  moveToPoint(-26, 18, -1, 1200, true, 10);
   scraper.set(false);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(1100, msec);
@@ -460,17 +471,19 @@ void elimright(){
   moveToPoint(35, 47, 1, 1500, true, 9);
   wait(200, msec);
   boomerang(14, 27, -1, 30, 0.15, 1500, true, 9);
+  wait(200, msec);
   turnToAngle(135, 500);
+  wait(200, msec);
   scraper.set(false);
   moveToPoint(43, 12, 1, 1800, true, 9);
   turnToAngle(180, 600);
-  moveToPoint(46, 22, -1, 1200, true, 9);
+  moveToPoint(46, 18, -1, 1200, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
   scraper.set(true);
   turnToAngle(180, 600);
-  moveToPoint(45.5, -8, 1, 1000, true, 9); 
+  moveToPoint(45.5, -12, 1, 1000, true, 9); 
   wait(1000, msec);
   moveToPoint(46, 23, -1, 900, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
