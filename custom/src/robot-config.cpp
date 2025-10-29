@@ -28,7 +28,8 @@ motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_ch
 
 inertial inertial_sensor = inertial(PORT20);
 optical example_optical_sensor = optical(PORT18);
-distance wall_distance_sensor = distance(PORT16);
+distance Rwall_distance_sensor = distance(PORT16);
+distance Lwall_distance_sensor = distance(PORT18);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
 // Format is rotation(port, reversed)

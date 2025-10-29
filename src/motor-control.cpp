@@ -1280,7 +1280,7 @@ void driveToWallDistance(double target_distance_in, double time_limit_msec, bool
   is_turning = true;
 
   double threshold = 0.2; // inches tolerance
-  double current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+  double current_distance_in = Lwall_distance_sensor.objectDistance(mm) / 25.4;
   double drive_direction = (current_distance_in < target_distance_in) ? 1 : -1;
 
   double max_slew_fwd = drive_direction > 0 ? max_slew_accel_fwd : max_slew_decel_rev;
@@ -1305,7 +1305,7 @@ void driveToWallDistance(double target_distance_in, double time_limit_msec, bool
     }
   }
 
-  PID pid_distance = PID(distance_kp, distance_ki, distance_kd);
+  PID pid_distance = PID(distance_kp + 0.2, distance_ki - 0.09, distance_kd - 0.15);
   PID pid_heading = PID(heading_correction_kp, heading_correction_ki, heading_correction_kd);
 
   // Configure PID controllers
@@ -1335,7 +1335,7 @@ void driveToWallDistance(double target_distance_in, double time_limit_msec, bool
          && Brain.timer(msec) - start_time <= time_limit_msec)) {
 
     // Update current readings
-    current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+    current_distance_in = Lwall_distance_sensor.objectDistance(mm) / 25.4;
     current_angle = getInertialHeading();
 
     // PID updates
@@ -1387,21 +1387,52 @@ void driveToWallDistance(double target_distance_in, double time_limit_msec, bool
   is_turning = false;
 }
 
-void driveToWall(double target_distance_in, double time_limit_msec, bool exit, double max_output) {
-  // Read current distance from wall (convert mm → inches)
-  double current_distance_in = wall_distance_sensor.objectDistance(mm) / 25.4;
+void driveToWall(double target_in, double time_limit_msec, bool exit, double max_output) {
+  //Reset and prepare
+  stopChassis(vex::brakeType::coast);
+  is_turning = true;
 
-  // If sensor returns invalid reading, skip
-  if (current_distance_in <= 0) {
-    Brain.Screen.print("Distance sensor error!");
-    return;
+  // PID for left and right wall distances
+  PID pid_left(distance_kp, distance_ki, distance_kd);
+  PID pid_right(distance_kp, distance_ki, distance_kd);
+
+  pid_left.setTarget(target_in);
+  pid_right.setTarget(target_in);
+
+  pid_left.setIntegralMax(2);
+  pid_right.setIntegralMax(2);
+
+  pid_left.setSmallBigErrorTolerance(0.3, 1.0);
+  pid_right.setSmallBigErrorTolerance(0.3, 1.0);
+
+  pid_left.setSmallBigErrorDuration(75, 200);
+  pid_right.setSmallBigErrorDuration(75, 200);
+
+  double left_output = 0, right_output = 0;
+  double start_time = Brain.timer(msec);
+
+  // Main loop: move each side until both sensors are within tolerance
+  while ((!pid_left.targetArrived() || !pid_right.targetArrived()) && Brain.timer(msec) - start_time < 4000) {
+    double left_dist = Lwall_distance_sensor.objectDistance(inches);
+    double right_dist = Rwall_distance_sensor.objectDistance(inches);
+
+    // PID updates (positive output = forward)
+    left_output = pid_left.update(left_dist);
+    right_output = pid_right.update(right_dist);
+
+    // Scale outputs and limit acceleration
+    scaleToMax(left_output, right_output, max_output);
+
+    // Drive
+    driveChassis(-left_output, -right_output);
+    wait(20, msec);
   }
 
-  // Calculate how far we need to move (positive = forward, negative = backward)
-  double move_distance = current_distance_in - target_distance_in;
+  // Stop and hold for specified time
+  stopChassis(vex::hold);
+  wait(time_limit_msec, msec);
+  is_turning = false;
 
-  // Call the existing PID-based driveTo
-  driveTo(move_distance, time_limit_msec, exit, max_output);
 }
 
 // ============================================================================

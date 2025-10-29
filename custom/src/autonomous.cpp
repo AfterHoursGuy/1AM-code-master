@@ -16,8 +16,6 @@ void doinker(int t){
   scraper.set(true);
 }
 
-
-
 void doinkerup(int t){
   wait(t, msec);
   scraper.set(false);
@@ -51,12 +49,12 @@ void exampleAuton() {
 }
 
 void exampleAuton2() {
-  correct_angle = 0;
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   hood.spin(reverse, 12, voltageUnits::volt);
-  driveToWall(8.4, 10000, true, 6); 
-  wait(500, msec);
-  moveToPoint(3, -5, -1, 8000, true, 6);
+  correct_angle = 0;
+  driveToWall(8.8, 5000, true, 12); 
+  moveToPoint(0, 0, -1, 4000, true, 8);
+
   
 }
 
