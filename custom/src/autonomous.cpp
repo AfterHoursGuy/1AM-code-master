@@ -94,106 +94,6 @@ void sigsoloAWP(){
   scraper.set(false);
   hood.spin(reverse, 12, voltageUnits::volt);
 
-
-  
-  
-  
-
-  /*scraper.set(true);
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  //moveToPoint(0, 15, 1, 1500, false, 9);
-  //turnToAngle(90, 800, true, 12);
-  //moveToPoint(20.5, 37, 1, 1500, true, 9);
-  boomerang(24, 31, 1, 90, 0.6, 3000, true, 8);
-  wait(700, msec);
-  moveToPoint(-11, 30, -1, 1000, true, 10);
-  hood.spin(reverse, 12, voltageUnits::volt);
-  wait(1100, msec);
-  hood.stop();
-  scraper.set(false);
-  moveToPoint(-3, 32, 1, 1500, true, 10);
-  turnToAngle(225, 800, true, 12);
-  hood.stop();
-  thread([](){
-    doinker(1700);
-    lower_intake.stop(coast);
-  });
-  moveToPoint(-9, 4, 1, 800, false, 12);
-  boomerang(-9, -50, 1, 180, 0.2, 1700, true, 12);
-  wait(100, msec);
-  scraper.set(false);
-  turnToAngle(135, 600);
-  wait(100, msec);
-  moveToPoint(-22, -31, -1, 1100, true, 8);
-  mid_goal.set(true); 
-  hood.spin(reverse, 12, voltageUnits::volt);
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  hood.spin(fwd, 12, voltageUnits::volt);
-  wait(1500, msec);
-  hood.stop();
-  mid_goal.set(false);
-  thread([](){doinker(1000);});
-  boomerang(30, -59, 1, 87, 0.5, 2000, true, 9);
-  wait(500, msec);
-  moveToPoint(-14, -60, -1, 1500, true, 12);
-  hood.spin(reverse, 12, voltageUnits::volt);*/
- 
-
-
-  /*lower_intake.spin(reverse, 12, voltageUnits::volt);
-  thread([](){doinker(500);}); 
-  moveToPoint(-5.3, 20.5, 1, 600, true, 9);
-  wait(50, msec);
-  turnToAngle(229, 600);
-  mid_goal.set(true);
-  hood_limiter.set(true);
-  phood.set(true);
-  moveToPoint(15, 31, -1, 1100, true, 12);
-  hood.spin(fwd, 12, voltageUnits::volt);
-  turnToAngle(225, 650);
-  wait(350, msec);
-  scraper.set(false);
-  hood.stop();
-  correct_angle = 225;
-  driveTo(13, 500, true, 12);
-  mid_goal.set(false);
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  turnToAngle(90, 600);
-  thread([](){
-    doinker(800);
-  });
-  moveToPoint(44, 25, 1, 900, true, 12);
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  wait(100, msec);
-  turnToAngle(60, 600);
-  thread([](){doinkerup(200);});
-  thread([](){doinker(650);});
-  correct_angle = 60;
-  driveTo(27, 900, true, 10);
-  wait(250, msec);
-  moveToPoint(45, 24, -1, 1000, true, 12);
-  turnToAngle(137, 700);
-  correct_angle = 137;
-  driveTo(-13, 600, true, 12);
-  mid_goal.set(true);
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  wait(100, msec);
-  hood.spin(fwd, 12, voltageUnits::volt);
-  wait(500, msec); 
-  hood.stop();
-  mid_goal.set(false);
-  hood_limiter.set(false);
-  phood.set(false);
-  scraper.set(false);
-  moveToPoint(73.5, -5, 1, 3000, true, 12);
-  wait(100, msec);
-  scraper.set(true);
-  turnToAngle(183, 930);
-  driveTo(11, 600, true, 12);
-  wait(500, msec);
-  moveToPoint(74.5, 27, -1, 1000, true, 12);
-  hood.spin(reverse, 12, voltageUnits::volt);*/
-
 }
 
 void qualsoloawp(){
@@ -418,36 +318,56 @@ void skills() {
 }
 
 void elimleft(){
+  //Elimintaion left side autonomous, picks up 8 balls and scores them all in the long goal, empties the matchloader
+
+  //Runs lower intake and threads ball control commands for the beggining sequence
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   thread([](){
     doinker(500);
     doinkerup(400);
     doinker(1300);
   }); 
+
+  //Runs movements to pick up the first 5 balls in the sequence, uses the previous thread for ball control
   moveToPoint(-5.3, 20.5, 1, 900, true, 9);
   moveToPoint(-10, 37, 1, 900, true, 9);
   turnToAngle(-90, 600);
   moveToPoint(-24, 37, 1, 900, true, 9);
   wait(200, msec);
+
+  //Runs an arc away from the auto line to prime for the move to the long goal
   boomerang(-5, 20, -1, -30, 0.25, 1500, true, 9);
   wait(100, msec);
   turnToAngle(-135, 500);
+
+  //Runs anti jam before moving to the long goal
   lower_intake.stop(coast);
   wait(100, msec);
   scraper.set(false);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
+
+  //moves into position with heading corrections to align with the long goal
   moveToPoint(-31, 4, 1, 1900, true, 8);
   wait(100, msec);
   turnToAngle(180, 500);
+
+  //Runs another anti jam before the scoring movement
   scraper.set(true);
+  lower_intake.stop(coast);
   wait(100, msec);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
+
+  //Final approach to the long goal, and scores the 5 blocks weve picked up so far
   moveToPoint(-26.5, 20, -1, 1500, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
+
+  //Moves to pick up the next 3 blocks from the match loader
   moveToPoint(-27, -16, 1, 1700, true, 7);
   wait(1000, msec);
+
+  //Final scoring move, moves into position and scores the last 3 balls
   moveToPoint(-26, 18, -1, 1200, true, 10);
   scraper.set(false);
   hood.spin(reverse, 12, voltageUnits::volt);
@@ -457,32 +377,56 @@ void elimleft(){
 }
 
 void elimright(){
+  //Elimintaion right side autonomous, picks up 8 balls and scores them all in the long goal, empties the matchloader
+
+  //Runs lower intake and threads ball control commands for the beggining sequence
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   thread([](){
     doinker(580);
     doinkerup(400);
     doinker(1400);
   }); 
+
+  //Runs movements to pick up the first 5 balls in the sequence, uses the previous thread for ball control
   moveToPoint(5.3, 20.5, 1, 1500, true, 9); 
   moveToPoint(10, 40, 1, 1500, true, 9);
   turnToAngle(90, 600);
   moveToPoint(35, 47, 1, 1500, true, 9);
   wait(200, msec);
+
+  //Runs an arc away from the auto line to prime for the move to the long goal
   boomerang(14, 27, -1, 30, 0.15, 1500, true, 9);
   wait(200, msec);
   turnToAngle(135, 500);
-  wait(200, msec);
+
+  //Runs anti jam before moving to the long goal
+  lower_intake.stop(coast);
+  wait(100, msec);
   scraper.set(false);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+
+  //moves into position with heading corrections to align with the long goal
   moveToPoint(43, 12, 1, 1800, true, 9);
+  wait(100, msec);
   turnToAngle(180, 600);
+
+  //Runs another anti jam before the scoring movement
+  scraper.set(true);
+  lower_intake.stop(coast);
+  wait(100, msec);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+
+  //Final approach to the long goal, and scores the 5 blocks weve picked up so far
   moveToPoint(46, 18, -1, 1200, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
-  scraper.set(true);
-  turnToAngle(180, 600);
+
+  //Moves to pick up the next 3 blocks from the match loader
   moveToPoint(45.5, -12, 1, 1000, true, 9); 
   wait(1000, msec);
+
+  //Final scoring move, moves into position and scores the last 3 balls
   moveToPoint(46, 23, -1, 900, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(1400, msec);
