@@ -31,4 +31,4 @@ void turnToPoint(double x, double y, int dir, double time_limit_msec);
 void moveToPoint(double x, double y, int dir, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void boomerang(double x, double y, int dir, double a, double dlead, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void driveToWallDistance(double target_distance_in, double time_limit_msec, bool exit = true, double max_output = 12);
-void driveToWall(double target_distance_in, double time_limit_msec, bool exit = true, double max_output = 12);
+void driveToWall(double target_distance_in, double time_limit_msec, double hold_time, bool exit = true, double max_output = 12);

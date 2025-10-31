@@ -1387,7 +1387,9 @@ void driveToWallDistance(double target_distance_in, double time_limit_msec, bool
   is_turning = false;
 }
 
-void driveToWall(double target_in, double time_limit_msec, bool exit, double max_output) {
+double hold_time = 800;
+
+void driveToWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
   //Reset and prepare
   stopChassis(vex::brakeType::coast);
   is_turning = true;
@@ -1412,7 +1414,7 @@ void driveToWall(double target_in, double time_limit_msec, bool exit, double max
   double start_time = Brain.timer(msec);
 
   // Main loop: move each side until both sensors are within tolerance
-  while ((!pid_left.targetArrived() || !pid_right.targetArrived()) && Brain.timer(msec) - start_time < 4000) {
+  while ((!pid_left.targetArrived() || !pid_right.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
     double left_dist = Lwall_distance_sensor.objectDistance(inches);
     double right_dist = Rwall_distance_sensor.objectDistance(inches);
 
@@ -1430,7 +1432,7 @@ void driveToWall(double target_in, double time_limit_msec, bool exit, double max
 
   // Stop and hold for specified time
   stopChassis(vex::hold);
-  wait(time_limit_msec, msec);
+  wait(hold_time, msec);
   is_turning = false;
 
 }

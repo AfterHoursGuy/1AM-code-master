@@ -170,7 +170,7 @@ void rightsidequal(){
   //Runs lower intake and threads ball control commands for the beggining sequence
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   thread([](){
-    doinker(620);
+    doinker(650);
     doinkerup(400);
     doinker(1400);
   }); 
@@ -205,19 +205,20 @@ void rightsidequal(){
   });
 
   //Moves into position to get blocks from the matchloader
-  moveToPoint(43.5, 0, 1, 1800, true, 9);
+  moveToPoint(42, 0, 1, 1800, true, 9);
   turnToAngle(180, 600);
 
   //Gets the first three blocks out of the matchloader
-  moveToPoint(44, -12, 1, 1000, true, 9); 
-  wait(600, msec);
+  correct_angle = 180;
+  driveToWall(8.8, 800, true, 12);
 
   /*Moves into position to score in the long goal, and scores all 5 blocks, 
   then moves back to the matchloader to empty it*/
   moveToPoint(44, 19, -1, 900, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2500, msec);
-  moveToPoint(44.5, -12, 1, 1000, true, 10);
+  correct_angle = 180;
+  driveToWall(8.8, 2000, 2000, true, 12);
 
 }
 
@@ -247,7 +248,7 @@ void leftsidequal(){
   wait(200, msec);
 
   //Moves into position with heading corrections to align with the middle goal, and scores 3 blocks
-  moveToPoint(12, 34, -1, 1400, true, 9);
+  moveToPoint(12, 32.5, -1, 1400, true, 9);
   hood.spin(fwd, 12, voltageUnits::volt);
   mid_goal.set(true);
   turnToAngle(225, 600, true, 12);
@@ -265,21 +266,22 @@ void leftsidequal(){
   });
 
   //Moves into position to get blocks from the matchloader
-  moveToPoint(-26, -4, 1, 1900, true, 8);
+  moveToPoint(-25, -4, 1, 1900, true, 8);
   turnToAngle(180, 500);
 
   //Gets the first three blocks out of the matchloader
-  moveToPoint(-26, -13.5, 1, 1900, true, 8);
-  wait(600, msec);
+  correct_angle = 180;
+  driveToWall(8.8, 800, 700, true, 12);
   lower_intake.stop(coast);
 
   /*Moves into position to score in the long goal, and scores all 5 blocks, 
   then moves back to the matchloader to empty it*/
-  moveToPoint(-24, 18, -1, 1900, true, 8);
+  moveToPoint(-25, 19.5, -1, 1900, true, 8);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2500, msec);
-  moveToPoint(-25, -13.5, 1, 1900, true, 8);
+  correct_angle = 180;
+  driveToWall(8.8, 2000, 2000, true, 12);
 
 }
 
@@ -314,7 +316,7 @@ void skills() {
   scraper.set(true);
   moveToPoint(98, 30.5, 1, 2000, true, 6);
   correct_angle = 90;
-  driveToWall(8.8, 2000, true, 12);
+  driveToWall(8.8, 900, 1700, true, 12);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   wait(100, msec);
 
@@ -341,7 +343,7 @@ void skills() {
   turnToAngle(90, 1000);
   moveToPoint(98, -64, 1, 3500, true, 6);
   correct_angle = 90;
-  driveToWall(8.8, 2000, true, 12);
+  driveToWall(8.8, 900, 1700, true, 12);
 
   //Runs a motionchain through the channel to the other side of the goal
   moveToPoint(86, -66, -1, 2000, true, 9);
@@ -363,7 +365,7 @@ void skills() {
   //Runs a motionchain to the final matchloader and picks up 6 blocks
   moveToPoint(-13, -67.8, 1, 3400, true, 6);
   correct_angle = -90;
-  driveToWall(8.8, 2000, true, 12);
+  driveToWall(8.8, 900, 1700, true, 12);
   
   //Moves back to the long goal and scores 6 blocks, and corrects the heading for park
   moveToPoint(20, -69, -1, 1500, true, 7);
@@ -422,17 +424,18 @@ void elimleft(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
 
   //Final approach to the long goal, and scores the 5 blocks weve picked up so far
-  moveToPoint(-26.5, 20, -1, 1500, true, 9);
+  moveToPoint(-28, 20, -1, 1500, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
 
   //Moves to pick up the next 3 blocks from the match loader
-  moveToPoint(-27, -16, 1, 1700, true, 7);
-  wait(1000, msec);
+  moveToPoint(-27.5, -4, 1, 1000, false, 11);
+  correct_angle = 180;
+  driveToWall(8.8, 1500, 900, true, 12);
 
   //Final scoring move, moves into position and scores the last 3 balls
-  moveToPoint(-26, 18, -1, 1200, true, 10);
+  moveToPoint(-28.5, 21, -1, 1200, false, 10);
   scraper.set(false);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(1100, msec);
@@ -448,20 +451,20 @@ void elimright(){
   //Runs lower intake and threads ball control commands for the beggining sequence
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   thread([](){
-    doinker(580);
+    doinker(600);
     doinkerup(400);
     doinker(1400);
   }); 
 
   //Runs movements to pick up the first 5 balls in the sequence, uses the previous thread for ball control
-  moveToPoint(5.3, 20.5, 1, 1500, true, 9); 
+  moveToPoint(5.3, 23.5, 1, 1500, true, 9); 
   moveToPoint(10, 40, 1, 1500, true, 9);
   turnToAngle(90, 600);
   moveToPoint(35, 47, 1, 1500, true, 9);
   wait(200, msec);
 
   //Runs an arc away from the auto line to prime for the move to the long goal
-  boomerang(14, 27, -1, 30, 0.15, 1500, true, 9);
+  boomerang(14, 22, -1, 30, 0.15, 1900, true, 9);
   wait(200, msec);
   turnToAngle(135, 500);
 
@@ -472,7 +475,7 @@ void elimright(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
 
   //moves into position with heading corrections to align with the long goal
-  moveToPoint(43, 12, 1, 1800, true, 9);
+  moveToPoint(48, 8, 1, 2000, true, 9);
   wait(100, msec);
   turnToAngle(180, 600);
 
@@ -483,17 +486,18 @@ void elimright(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
 
   //Final approach to the long goal, and scores the 5 blocks weve picked up so far
-  moveToPoint(46, 18, -1, 1200, true, 9);
+  moveToPoint(48, 18, -1, 1200, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
 
   //Moves to pick up the next 3 blocks from the match loader
-  moveToPoint(45.5, -12, 1, 1000, true, 9); 
-  wait(1000, msec);
+  moveToPoint(48.5, -1, 1, 1000, true, 9); 
+  correct_angle = 180;
+  driveToWall(8.8, 1500, 900, true, 12);
 
   //Final scoring move, moves into position and scores the last 3 balls
-  moveToPoint(46, 23, -1, 900, true, 9);
+  moveToPoint(48, 20, -1, 900, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(1400, msec);
   hood.stop();
