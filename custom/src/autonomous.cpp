@@ -300,6 +300,7 @@ void skills() {
   //Runs a motionchain with an arc toward the channel, and a movement to the other side of the goal
   boomerang(22.5, 38, -1, -90, 0.2, 1100, false, 8);
   scraper.set(false);
+  lower_intake.stop(coast);
   moveToPoint(85, 30, -1, 1500, true, 10);
 
   //Runs a sequence of movements to the long goal, and scores 7 blocks
@@ -307,6 +308,7 @@ void skills() {
   moveToPoint(94, 28, 1, 1600, true, 8);
   turnToAngle(90, 800, true, 12);
   moveToPoint(69, 32, -1, 1000, true, 8);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
   hood.spin(reverse, 12, voltageUnits::volt);
   turnToAngle(90, 600, true, 12);
   wait(4000, msec);
