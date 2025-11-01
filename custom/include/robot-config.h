@@ -15,7 +15,7 @@ extern motor right_chassis2;
 extern motor right_chassis3;
 extern motor_group right_chassis;
 extern inertial inertial_sensor;
-extern optical example_optical_sensor;
+extern optical block_counter;
 extern distance Rwall_distance_sensor;
 extern distance Lwall_distance_sensor;
 extern digital_out example_piston;

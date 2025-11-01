@@ -27,7 +27,7 @@ motor right_chassis3 = motor(PORT3, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
 inertial inertial_sensor = inertial(PORT20);
-optical example_optical_sensor = optical(PORT18);
+optical block_counter = optical(PORT19);
 distance Rwall_distance_sensor = distance(PORT16);
 distance Lwall_distance_sensor = distance(PORT18);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);

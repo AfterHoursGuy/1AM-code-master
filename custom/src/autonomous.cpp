@@ -23,17 +23,6 @@ void doinkerup(int t){
 
 void ballhold(){
   hood.spin(reverse, 2.5, voltageUnits::volt);
-  mid_goal.set(true);
-  example_optical_sensor.setLightPower(100);
-  while (true) {
-    if (example_optical_sensor.color() == color::red) {
-      mid_goal.set(false);
-      example_optical_sensor.setLightPower(0);
-      lower_intake.stop(coast);
-      hood.stop(coast);
-      break;
-    }
-  }
 }
 
 void exampleAuton() {

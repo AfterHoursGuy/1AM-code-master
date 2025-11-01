@@ -65,6 +65,41 @@ bool phoodState = false;
 static bool l1Prev = false;
 static bool intakeToggle = false;
 
+const int BLOCK_COUNT_TARGET = 7;
+const int DEBOUNCE_TIME_MS = 250; // delay to prevent double-counts
+int blockCount = 0;
+
+void block_count() {
+  block_counter.setLightPower(100); // turn on LED for block counter
+  bool blockPreviouslyDetected = false;
+
+  while (true) {
+    // detect a new block when sensor sees one
+    if (block_counter.isNearObject() && !blockPreviouslyDetected) {
+      blockPreviouslyDetected = true;
+
+      if (blockCount < BLOCK_COUNT_TARGET) {
+        ++blockCount;
+
+        if (blockCount >= BLOCK_COUNT_TARGET) {
+          // reached target — take action and reset counter
+          hood.stop(coast);
+          wait(2000,msec);        
+          blockCount = 0;         
+        }
+      }
+
+      wait(DEBOUNCE_TIME_MS, msec);
+    }
+
+    // reset detection when block leaves sensor view
+    if (!block_counter.isNearObject()) {
+      blockPreviouslyDetected = false;
+    }
+  }
+}
+
+
 // Named function for limiter off task
 int limiterOffTaskFunc() {
   wait(500, msec); // adjust delay as needed
@@ -76,6 +111,8 @@ int limiterOffTaskFunc() {
 void runDriver() {
   stopChassis(coast);
   heading_correction = false;
+  thread([](){block_count();});
+
   while (true) {
     // [-100, 100] for controller stick axis values
     ch1 = controller_1.Axis1.value();
@@ -104,19 +141,24 @@ void runDriver() {
     double rightPower = expoDrive(ch2, 1.4) * 0.12;  
     driveChassis(leftPower, rightPower);
 
-    if (l1 && !l1Prev) {  // rising edge detection
-  intakeToggle = !intakeToggle;
-}
-l1Prev = l1;
+      if (l1 && !l1Prev) {  // rising edge detection
+        intakeToggle = !intakeToggle;
+      }
+      l1Prev = l1;
 
     // Intake & hood control with middle goal condition
     if (r1) {
       if (middleGoalState) {
-        // R1 pressed + middle goal open → spin opposite
+        // If we've collected enough blocks, stop the hood
+        if (blockCount >= BLOCK_COUNT_TARGET) {
+          hood.stop(coast);
+          
+        } else {
         lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(forward, 12, voltageUnits::volt);
+        hood.spin(fwd, 12, voltageUnits::volt);
+        }
       } else {
-        // R1 pressed + middle goal closed → normal forward
+        // R1 pressed + middle goal open → normal forward
         lower_intake.spin(reverse, 12, voltageUnits::volt);
         hood.spin(reverse, 12, voltageUnits::volt);
       }
@@ -166,7 +208,6 @@ l1Prev = l1;
         //hood_limiter.set(false);
         limiterOffTask = task(limiterOffTaskFunc);
 
-  
       }
     }
     yPrev = button_y;
@@ -176,6 +217,7 @@ l1Prev = l1;
     if (button_right_arrow && !rightPrev) {
     middleGoalState = !middleGoalState;
     mid_goal.set(middleGoalState);
+    blockCount = 0;
     }
     rightPrev = button_right_arrow;
 
