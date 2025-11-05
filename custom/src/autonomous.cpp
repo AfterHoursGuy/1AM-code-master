@@ -54,7 +54,7 @@ void sigsoloAWP(){
   //Runs an arc into the first matchloader, picking up 3 blocks
   scraper.set(true);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
-  boomerang(-16.5, 23, 1, -95, 0.4, 1900, true, 8);
+  boomerang(-16, 23, 1, -95, 0.4, 1900, true, 8);
   wait(330, msec);
 
   //Moves to the long goal and scores the 3 blocks from the matchloader
@@ -67,13 +67,14 @@ void sigsoloAWP(){
   moveToPoint(4, 23, 1, 1500, true, 10);
   hood.stop(coast);
   turnToAngle(135, 800, true, 12);
-  thread([](){doinker(670);});
-  moveToPoint(33, 4.5, 1, 1000, true, 12);
+  thread([](){doinker(700);});
+  moveToPoint(33, 2, 1, 1000, true, 12);
+  scraper.set(false);
 
   //Turns toward the middle goal, moves to it with heading corrections, and scores 3 blocks
   turnToAngle(-45, 600);
   mid_goal.set(true); 
-  moveToPoint(31, -16, -1, 1000, true, 10);
+  moveToPoint(32, -16, -1, 1000, true, 10);
   scraper.set(false);
   hood.spin(fwd, 12, voltageUnits::volt);
   wait(1300, msec);
@@ -93,9 +94,9 @@ void sigsoloAWP(){
 
   //Threads ball control, moves and collects the block bundle, and scores 3 blocks in the other long goal
   thread([](){doinker(900);});
-  boomerang(24, -46, 1, 210, 0.1, 3000, false, 12, true);
+  boomerang(24, -46, 1, 210, 0.2, 3000, false, 12, true);
   moveToPoint(-5, -76, 1, 1000, false, 11); 
-  moveToPoint(23, -70, -1, 700, true, 12);
+  moveToPoint(23, -71, -1, 700, true, 12);
   scraper.set(false);
   hood.spin(reverse, 12, voltageUnits::volt);
 
@@ -334,7 +335,7 @@ void skills() {
   turnToAngle(90, 1000);
   moveToPoint(98, -64, 1, 3500, true, 6);
   correct_angle = 90;
-  driveToWall(8.8, 900, 1700, true, 12);
+  driveToWall(8.7, 1400, 1700, true, 12);
 
   //Runs a motionchain through the channel to the other side of the goal
   moveToPoint(86, -66, -1, 2000, true, 9);
@@ -356,7 +357,7 @@ void skills() {
   //Runs a motionchain to the final matchloader and picks up 6 blocks
   moveToPoint(-13, -67.8, 1, 3400, true, 6);
   correct_angle = -90;
-  driveToWall(8.8, 900, 1700, true, 12);
+  driveToWall(8.65, 1400, 1700, true, 12);
   
   //Moves back to the long goal and scores 6 blocks, and corrects the heading for park
   moveToPoint(20, -69, -1, 1500, true, 7);
@@ -444,18 +445,18 @@ void elimright(){
   thread([](){
     doinker(600);
     doinkerup(400);
-    doinker(1400);
   }); 
 
   //Runs movements to pick up the first 5 balls in the sequence, uses the previous thread for ball control
   moveToPoint(5.3, 23.5, 1, 1500, true, 9); 
   moveToPoint(10, 40, 1, 1500, true, 9);
   turnToAngle(90, 600);
-  moveToPoint(35, 47, 1, 1500, true, 9);
+  thread([](){doinker(340);}); 
+  moveToPoint(35.5, 48, 1, 1500, true, 9);
   wait(200, msec);
 
   //Runs an arc away from the auto line to prime for the move to the long goal
-  boomerang(14, 22, -1, 30, 0.15, 1900, true, 9);
+  boomerang(10, 20, -1, 30, 0.15, 1900, true, 9);
   wait(200, msec);
   turnToAngle(135, 500);
 
@@ -466,7 +467,7 @@ void elimright(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
 
   //moves into position with heading corrections to align with the long goal
-  moveToPoint(48, 8, 1, 2000, true, 9);
+  moveToPoint(47, 8, 1, 2000, true, 9);
   wait(100, msec);
   turnToAngle(180, 600);
 
@@ -477,20 +478,20 @@ void elimright(){
   lower_intake.spin(reverse, 12, voltageUnits::volt);
 
   //Final approach to the long goal, and scores the 5 blocks weve picked up so far
-  moveToPoint(48, 18, -1, 1200, true, 9);
+  moveToPoint(47, 18, -1, 1200, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
   wait(2367, msec);
   hood.stop();
 
   //Moves to pick up the next 3 blocks from the match loader
-  moveToPoint(48.5, -1, 1, 1000, true, 9); 
+  moveToPoint(47.25, -1, 1, 1000, true, 9); 
   correct_angle = 180;
-  driveToWall(8.8, 1500, 900, true, 12);
+  driveToWall(8.7, 1800, 900, true, 12);
 
   //Final scoring move, moves into position and scores the last 3 balls
-  moveToPoint(48, 20, -1, 900, true, 9);
+  moveToPoint(46.5, 20, -1, 900, true, 9);
   hood.spin(reverse, 12, voltageUnits::volt);
-  wait(1400, msec);
+  wait(1200, msec);
   hood.stop();
   scraper.set(true);
 

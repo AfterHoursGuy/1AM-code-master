@@ -5,7 +5,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 4; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -155,7 +155,7 @@ void runDriver() {
           
         } else {
         lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(fwd, 12, voltageUnits::volt);
+        hood.spin(fwd, 9, voltageUnits::volt);
         }
       } else {
         // R1 pressed + middle goal open → normal forward
