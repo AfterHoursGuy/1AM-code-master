@@ -100,14 +100,6 @@ void block_count() {
 }
 
 
-// Named function for limiter off task
-int limiterOffTaskFunc() {
-  wait(500, msec); // adjust delay as needed
-  hoodLimiterState = false;
-  hood_limiter.set(false);
-  return 0;
-}
-
 void runDriver() {
   stopChassis(coast);
   heading_correction = false;
@@ -148,20 +140,9 @@ void runDriver() {
 
     // Intake & hood control with middle goal condition
     if (r1) {
-      if (middleGoalState) {
-        // If we've collected enough blocks, stop the hood
-        if (blockCount >= BLOCK_COUNT_TARGET) {
-          hood.stop(coast);
-          
-        } else {
-        lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(fwd, 9, voltageUnits::volt);
-        }
-      } else {
-        // R1 pressed + middle goal open → normal forward
         lower_intake.spin(reverse, 12, voltageUnits::volt);
         hood.spin(reverse, 12, voltageUnits::volt);
-      }
+      
     } else if (r2) {
       // R2 → reverse both
       lower_intake.spin(fwd, 12, voltageUnits::volt);
@@ -169,11 +150,11 @@ void runDriver() {
     } else if (intakeToggle) {
       // L1 toggle ON → forward lower intake only
       lower_intake.spin(reverse, 12, voltageUnits::volt);
-      hood.stop(coast);
+      hood.stop(hold);
     } else {
       // Nothing pressed → stop both
       lower_intake.stop(coast);
-      hood.stop(coast);
+      hood.stop(hold);
     }
 
     // Scraper toggle on L2
@@ -191,26 +172,6 @@ void runDriver() {
       park.set(parkPistonState);
     }
     aPrev = button_a;
-
-    // Hood toggle on Y with limiter logic
-    static bool yPrev = false;
-  static task limiterOffTask;
-    if (button_y && !yPrev) {
-      phoodState = !phoodState; // toggle hood state
-      phood.set(phoodState);
-
-      if (phoodState) {
-        hoodLimiterState = true;
-        hood_limiter.set(true);
-      } else {
-        // Turning hood OFF → keep limiter ON, then delay → OFF
-        //hoodLimiterState = false;
-        //hood_limiter.set(false);
-        limiterOffTask = task(limiterOffTaskFunc);
-
-      }
-    }
-    yPrev = button_y;
 
     // Right arrow toggle for Middle goal
     static bool rightPrev = false;

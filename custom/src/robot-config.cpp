@@ -17,12 +17,12 @@ controller controller_1 = controller(primary);
 // all chassis motors should be reversed appropriately so that they spin vertical when given a positive voltage input
 // such as driveChassis(12, 12)
 
-motor left_chassis1 = motor(PORT4, ratio6_1, false);
-motor left_chassis2 = motor(PORT6, ratio6_1, true);
-motor left_chassis3 = motor(PORT7, ratio6_1, true);
+motor left_chassis1 = motor(PORT6, ratio18_1, false);
+motor left_chassis2 = motor(PORT7, ratio6_1, true);
+motor left_chassis3 = motor(PORT8, ratio6_1, true);
 motor_group left_chassis = motor_group(left_chassis1, left_chassis2, left_chassis3);
-motor right_chassis1 = motor(PORT1, ratio6_1, false);
-motor right_chassis2 = motor(PORT2, ratio6_1, true);
+motor right_chassis1 = motor(PORT2, ratio6_1, false);
+motor right_chassis2 = motor(PORT4, ratio18_1, true);
 motor right_chassis3 = motor(PORT3, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
@@ -38,9 +38,11 @@ rotation horizontal_tracker = rotation(PORT17, true);
 rotation vertical_tracker = rotation(PORT19, true);
 
 // other devices
-motor lower_intake = motor(PORT8, ratio6_1, true);
-motor hood = motor(PORT21, ratio6_1, false);
-motor_group intake = motor_group(lower_intake, hood);
+motor lower_intake1 = motor(PORT14, ratio6_1, false);
+motor lower_intake2 = motor(PORT15, ratio6_1, true);
+motor hood = motor(PORT10, ratio6_1, false);
+motor_group lower_intake = motor_group(lower_intake1, lower_intake2);
+motor_group intake = motor_group(lower_intake1, lower_intake2, hood);
 digital_out scraper = digital_out(Brain.ThreeWirePort.A);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
 digital_out park = digital_out(Brain.ThreeWirePort.C);

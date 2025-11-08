@@ -22,8 +22,10 @@ extern digital_out example_piston;
 extern rotation horizontal_tracker;
 extern rotation vertical_tracker;
 
-extern motor lower_intake;
+extern motor lower_intake1;
+extern motor lower_intake2;
 extern motor hood;
+extern motor_group lower_intake;
 extern motor_group intake;
 extern digital_out scraper;
 extern digital_out mid_goal;
