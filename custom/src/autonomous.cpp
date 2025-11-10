@@ -50,7 +50,48 @@ void rightsidequal(){
 }
 
 void leftsidequal(){
- 
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  thread([](){ 
+    doinker(500);
+    doinkerup(500);
+   });
+  moveToPoint(-5.5, 23, 1, 5000, false, 10);
+  moveToPoint(-16, 38, 1, 5000, false, 10);
+  thread([](){ doinker(300); });
+  swing(270, 1, 5000, true, 10);
+  wait(400, msec);
+  moveToPoint(7.5, 35, -1, 5000, false, 10);
+  scraper.set(false);
+  turnToAngle(-135, 900, true, 10);
+  hood.spin(reverse, 7, voltageUnits::volt);
+  wait(1000, msec);
+  hood.stop(hold);
+  moveToPoint(-22, 0, 1, 5000, false, 11);
+  scraper.set(true);
+  turnToAngle(180, 3000, true, 10);
+  moveToPoint(-22, -7.5, 1, 5000, true, 11);
+  wait(1200, msec);
+  lower_intake.stop(coast);
+  mid_goal.set(true);
+  moveToPoint(-22, 23, -1, 5000, true, 10);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  hood.spin(reverse, 12, voltageUnits::volt);
+  wait(1000, msec);
+  hood.stop(hold);
+  moveToPoint(-22, 11, 1, 5000, true, 8);
+  mid_goal.set(false);
+  hood.spin(reverse, 7, voltageUnits::volt);
+  wait(500, msec);
+  hood.stop(hold);
+  moveToPoint(-22, 25, -1, 5000, true, 12);
+  wait(500, msec);
+  moveToPoint(-22, 19, 1, 1400, true, 11);
+  turnToAngle(90, 800, true, 10);
+  driveChassis(-12,-12);
+  wait(1000, msec);
+  driveChassis(0,0);
+
+
 }
 
 void skills() {

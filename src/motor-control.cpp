@@ -54,7 +54,8 @@ void resetChassis() {
  */
 double getLeftRotationDegree() {
   // Get left chassis motor position in degrees
-  return left_chassis.position(degrees);
+  //return left_chassis.position(degrees);
+  return (left_chassis1.position(degrees) * 3 + left_chassis2.position(degrees) + left_chassis3.position(degrees)) / 3.0;
 }
 
 /*
@@ -62,7 +63,8 @@ double getLeftRotationDegree() {
  */
 double getRightRotationDegree() {
   // Get right chassis motor position in degrees
-  return right_chassis.position(degrees);
+  //return right_chassis.position(degrees);
+  return (right_chassis1.position(degrees) + right_chassis2.position(degrees) * 3 + right_chassis3.position(degrees)) / 3.0;
 }
 
 /*
