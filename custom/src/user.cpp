@@ -5,7 +5,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 3; // change this to select different autonomous routines
+  int auton_selected = 7; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -37,6 +37,88 @@ void runAutonomous() {
   }
 }
 
+// loading toggle L1
+static bool l1Prev = false;
+static bool intakeToggle = false;
+
+const int BLOCK_COUNT_TARGET = 7;
+const int DEBOUNCE_TIME_MS = 50;
+
+int blockCount = 0;
+
+void block_count() {
+  bool lowerPrevDetected = false;
+  bool upperPrevDetected = false;
+
+  while (true) {
+    // --- Detect intake direction ---
+    double intakePower = lower_intake.velocity(percent); // or use .power() depending on setup
+    bool intakeForward = intakePower < -5;  // pulling blocks in (reverse spin)
+    bool intakeReverse = intakePower > 5;   // spitting blocks out (forward spin)
+    bool hoodScoring = hood.velocity(percent) < -5; // hood running to score
+
+    // --- LOWER SENSOR (block entering when intake pulling in) ---
+    if (block_counter_lower.isNearObject() && !lowerPrevDetected && intakeReverse) {
+      lowerPrevDetected = true;
+      blockCount--;
+
+      if (blockCount >= BLOCK_COUNT_TARGET) {
+        hood.stop(coast);
+        wait(2000, msec);
+        blockCount = 0;  // optional reset
+      }
+
+      wait(DEBOUNCE_TIME_MS, msec);
+    }
+
+    if (!block_counter_lower.isNearObject()) {
+      lowerPrevDetected = false;
+    }
+
+    if (block_counter_lower.isNearObject() && !lowerPrevDetected && intakeForward) {
+      lowerPrevDetected = true;
+      blockCount++;
+
+      if (blockCount >= BLOCK_COUNT_TARGET) {
+        hood.stop(coast);
+        wait(2000, msec);
+        blockCount = 0;  // optional reset
+      }
+
+      wait(DEBOUNCE_TIME_MS, msec);
+    }
+
+    if (!block_counter_lower.isNearObject()) {
+      lowerPrevDetected = false;
+    }
+
+    // --- UPPER SENSOR (block leaving when intake reversing) ---
+    if (block_counter_upper.isNearObject() && !upperPrevDetected && intakeForward && hoodScoring) {
+      upperPrevDetected = true;
+      if (blockCount > 0) blockCount--;
+
+      if (blockCount >= BLOCK_COUNT_TARGET) {
+        hood.stop(coast);
+        wait(2000, msec);
+        blockCount = 0;  // optional reset
+      }
+
+      wait(DEBOUNCE_TIME_MS, msec);
+    }
+
+    if (!block_counter_upper.isNearObject()) {
+      upperPrevDetected = false;
+    }
+
+    // Optional: show block count on brain screen
+    controller_1.Screen.clearLine();
+    controller_1.Screen.setCursor(1,1);
+    controller_1.Screen.print(blockCount);
+
+    wait(10, msec);
+  }
+}
+
 // Slight exponential scaling for joystick input
 double expoDrive(int input, double expo = 1.3) {
   // normalize to [-1, 1]
@@ -60,45 +142,6 @@ bool middleGoalState = false;
 bool parkPistonState = false;
 bool hoodLimiterState = false;
 bool phoodState = false;
-
-// loading toggle L1
-static bool l1Prev = false;
-static bool intakeToggle = false;
-
-const int BLOCK_COUNT_TARGET = 7;
-const int DEBOUNCE_TIME_MS = 250; // delay to prevent double-counts
-int blockCount = 0;
-
-void block_count() {
-  block_counter.setLightPower(100); // turn on LED for block counter
-  bool blockPreviouslyDetected = false;
-
-  while (true) {
-    // detect a new block when sensor sees one
-    if (block_counter.isNearObject() && !blockPreviouslyDetected) {
-      blockPreviouslyDetected = true;
-
-      if (blockCount < BLOCK_COUNT_TARGET) {
-        ++blockCount;
-
-        if (blockCount >= BLOCK_COUNT_TARGET) {
-          // reached target — take action and reset counter
-          hood.stop(coast);
-          wait(2000,msec);        
-          blockCount = 0;         
-        }
-      }
-
-      wait(DEBOUNCE_TIME_MS, msec);
-    }
-
-    // reset detection when block leaves sensor view
-    if (!block_counter.isNearObject()) {
-      blockPreviouslyDetected = false;
-    }
-  }
-}
-
 
 void runDriver() {
   stopChassis(coast);
@@ -182,8 +225,12 @@ void runDriver() {
     }
     rightPrev = button_right_arrow;
 
-    wait(10, msec); 
+    if (button_b) {
+      resetPositionFrontRight();
+    }
 
+    wait(10, msec); 
+   
   }
 }
 
@@ -214,5 +261,7 @@ void runPreAutonomous() {
   } else {
     thread odom = thread(trackNoOdomWheel);
   }
+
+  calibrateFieldOrigin();  // <-- automatically sets new (0,0)
 
 }

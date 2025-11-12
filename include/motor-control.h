@@ -10,7 +10,7 @@ extern double correct_angle;
 // --- Function Declarations (lowerCamelCase) ---
 void driveChassis(double left_power, double right_power);
 
-double getInertialHeading(bool normalize = false);
+double getInertialHeading();
 double normalizeTarget(double angle);
 
 void turnToAngle(double turn_angle, double time_limit_msec, bool exit = true, double max_output = 12);
@@ -31,3 +31,6 @@ void turnToPoint(double x, double y, int dir, double time_limit_msec);
 void moveToPoint(double x, double y, int dir, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void boomerang(double x, double y, int dir, double a, double dlead, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void driveToWall(double target_distance_in, double time_limit_msec, double hold_time, bool exit = true, double max_output = 12);
+void calibrateFieldOrigin();
+void resetPositionFrontRight();
+void resetPositionFrontLeft();

@@ -27,15 +27,18 @@ motor right_chassis3 = motor(PORT3, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
 inertial inertial_sensor = inertial(PORT20);
-optical block_counter = optical(PORT19);
+optical block_counter_lower = optical(PORT17);
+optical block_counter_upper = optical(PORT19);
 distance Rwall_distance_sensor = distance(PORT16);
 distance Lwall_distance_sensor = distance(PORT18);
+distance rightSide = distance(PORT12);
+distance leftSide = distance(PORT13);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
 // Format is rotation(port, reversed)
 // just set these to random ports if you don't use tracking wheels
-rotation horizontal_tracker = rotation(PORT17, true);
-rotation vertical_tracker = rotation(PORT19, true);
+rotation horizontal_tracker = rotation(PORT5, true);
+rotation vertical_tracker = rotation(PORT1, true);
 
 // other devices
 motor lower_intake1 = motor(PORT14, ratio6_1, false);
