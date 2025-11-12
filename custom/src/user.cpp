@@ -5,7 +5,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 2; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -109,11 +109,6 @@ void block_count() {
     if (!block_counter_upper.isNearObject()) {
       upperPrevDetected = false;
     }
-
-    // Optional: show block count on brain screen
-    controller_1.Screen.clearLine();
-    controller_1.Screen.setCursor(1,1);
-    controller_1.Screen.print(blockCount);
 
     wait(10, msec);
   }

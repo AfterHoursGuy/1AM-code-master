@@ -34,8 +34,8 @@ void exampleAuton() {
 }
 
 void exampleAuton2() {
-  lower_intake.spin(reverse, 12, voltageUnits::volt);
-  driveToWall(8.25, 3000, 500);
+  driveTo(24, 2000);
+  resetPositionFrontLeft();
 }
 
 void sigsoloAWP(){

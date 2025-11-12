@@ -1350,17 +1350,17 @@ void calibrateFieldOrigin() {
   double rightDist = rightTotal / samples;
 
   // --- compute distances from walls to robot center ---
-  double y_from_back_wall = FIELD_SIZE_IN - (frontDist + FRONT_SENSOR_OFFSET);
+  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
   double x_from_left_wall = leftDist + SIDE_SENSOR_OFFSET;
-  double x_from_right_wall = FIELD_SIZE_IN - (rightDist + SIDE_SENSOR_OFFSET);
+  double x_from_right_wall = rightDist + SIDE_SENSOR_OFFSET;
 
   // --- estimate midpoint X (using both side sensors if both see walls) ---
   double newX;
-  if (leftDist < 100 && rightDist < 100) {
+  if (leftDist < 75 && rightDist < 75) {
     newX = (x_from_left_wall + x_from_right_wall) / 2.0;
-  } else if (leftDist < 100) {
+  } else if (leftDist < 75) {
     newX = x_from_left_wall;
-  } else if (rightDist < 100) {
+  } else if (rightDist < 75) {
     newX = x_from_right_wall;
   } else {
     newX = 0; // if neither sees wall, assume 0
@@ -1369,20 +1369,21 @@ void calibrateFieldOrigin() {
   double newY = y_from_back_wall;
 
   // --- define this as the new origin offset ---
-  origin_x = -newX;
-  origin_y = -newY;
+  origin_x = newX;
+  origin_y = newY;
 
   // --- reset odometry so robot is at (0,0) ---
   x_pos = 0;
   y_pos = 0;
 
-  
+  // --- print result ---
+  Brain.Screen.setCursor(2, 1);
+  Brain.Screen.print("Initialized Origin");
+  Brain.Screen.setCursor(4, 1);
+  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
+  Brain.Screen.setCursor(6, 1);
+  Brain.Screen.print("X: %.1f  Y: %.1f", origin_x, origin_y);
 }
-
-// === ODOMETRY CONVERSIONS ===
-double getGlobalX() { return x_pos - origin_x; }
-double getGlobalY() { return y_pos - origin_y; }
-
 
 
 void resetPositionFrontRight() {
@@ -1391,36 +1392,36 @@ void resetPositionFrontRight() {
   double rightDist = rightSide.objectDistance(inches);
 
   // Compute distances from field walls
-  double y_from_back_wall = FIELD_SIZE_IN - (frontDist + FRONT_SENSOR_OFFSET);
-  double x_from_right_wall = FIELD_SIZE_IN - (rightDist + SIDE_SENSOR_OFFSET);
+  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
+  double x_from_right_wall = rightDist + SIDE_SENSOR_OFFSET;
 
   // Update field-relative position
-  x_pos = x_from_right_wall + origin_x;
-  y_pos = y_from_back_wall + origin_y;
+  x_pos = x_from_right_wall - origin_x;
+  y_pos = y_from_back_wall - origin_y;
 
   // Print result
   Brain.Screen.clearScreen();
   Brain.Screen.setCursor(2, 1);
   Brain.Screen.print("Reset: Front+Right");
   Brain.Screen.setCursor(4, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", getGlobalX(), getGlobalY());
+  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
 }
 
 void resetPositionFrontLeft() {
   double frontDist = (Lwall_distance_sensor.objectDistance(inches) + Rwall_distance_sensor.objectDistance(inches)) / 2.0;
   double leftDist  = leftSide.objectDistance(inches);
 
-  double y_from_back_wall = FIELD_SIZE_IN - (frontDist + FRONT_SENSOR_OFFSET);
+  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
   double x_from_left_wall = leftDist + SIDE_SENSOR_OFFSET;
 
-  x_pos = x_from_left_wall + origin_x;
-  y_pos = y_from_back_wall + origin_y;
+  x_pos = x_from_left_wall - origin_x;
+  y_pos = y_from_back_wall - origin_y;
 
   Brain.Screen.clearScreen();
   Brain.Screen.setCursor(2, 1);
   Brain.Screen.print("Reset: Front+Left");
   Brain.Screen.setCursor(4, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", getGlobalX(), getGlobalY());
+  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
 }
 
 
