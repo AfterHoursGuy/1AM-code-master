@@ -39,7 +39,44 @@ void exampleAuton2() {
 }
 
 void sigsoloAWP(){
-  
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  scraper.set(true);
+  mid_goal.set(true);
+  moveToPoint(0, 27, 1, 1200, false, 12);
+  swing(270, 1, 700, true, 12);
+  driveToWall(8.1, 900, 100);
+  moveToPoint(25, 29, -1, 1200, true, 12);
+  hood.spin(reverse, 12, voltageUnits::volt);
+  scraper.set(false);
+  wait(600, msec);
+  driveTo(8, 500, false);
+  turnToPoint(36, 11, 1, 700);
+  hood.stop(hold);
+  thread([](){ 
+    doinker(500);
+    doinkerup(300);
+   });
+  moveToPoint(36, 11, 1, 1200, true, 10);
+  turnToAngle(-45, 1000, true, 12);
+  boomerang(38, -7.5, -1, -45, 0.3, 1200, true, 11);
+  mid_goal.set(false);
+  wait(95, msec);
+  hood.spin(reverse, 12, voltageUnits::volt);
+  wait(500, msec);
+  hood.stop(hold);
+  driveTo(6, 500, false);
+  turnToPoint(31, -42, 1, 700);
+  thread([](){ 
+    doinker(800);
+    doinkerup(300);
+    doinker(700);
+   });
+  moveToPoint(31, -42, 1, 2000, true, 12);
+  boomerang(-3, -67, 1, -90, 0.4, 2100, false, 12);
+  mid_goal.set(true);
+  driveToWall(8.1, 800, 500);
+  moveToPoint(25, -68, -1, 2000, true, 12);
+  hood.spin(reverse, 12, voltageUnits::volt);
 }
 
 void qualsoloawp(){
@@ -130,13 +167,13 @@ void skills() {
   moveToPoint(60, 0, 1, 2000, false, 12);
   moveToPoint(18, 8, 1, 2300, true, 9);
   turnToAngle(-45, 800, true, 10);
-  moveToPoint(37, -9, -1, 2000, true, 10);
+  moveToPoint(37.5, -9.5, -1, 2000, true, 10);
   mid_goal.set(false);
   hood.spin(reverse, 6, voltageUnits::volt);
   wait(1500, msec);
-  hood.stop(hold);
   swing(270, 1, 1000, false, 12);
-  moveToPoint(5, -65, 1, 4000, true, 12);
+  hood.stop(hold);
+  moveToPoint(5, -66, 1, 4000, true, 12);
   scraper.set(true);
   turnToAngle(270, 1500, true, 10);
   driveToWall(8.1, 2000, 1200);

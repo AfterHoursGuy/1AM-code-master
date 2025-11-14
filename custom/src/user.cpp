@@ -5,7 +5,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 2; // change this to select different autonomous routines
+  int auton_selected = 5; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -257,6 +257,6 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
-  calibrateFieldOrigin();  // <-- automatically sets new (0,0)
+  //calibrateFieldOrigin();  // <-- automatically sets new (0,0)
 
 }
