@@ -84,6 +84,45 @@ void qualsoloawp(){
 }
 
 void rightsidequal(){
+  mid_goal.set(true);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  thread([](){ 
+    doinker(500);
+    doinkerup(500);
+   });
+  moveToPoint(8, 30, 1, 1200, false, 11);
+  moveToPoint(22.5, 46, 1, 1800, true, 11);
+  thread([](){ doinker(200); });
+  swing(90, 1, 900, true, 10);
+  wait(100, msec);
+  moveToPoint(4, 37, -1, 1300, false, 12);
+  scraper.set(false);
+  turnToAngle(-45, 900, true, 12);
+  driveTo(4, 500, true);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  hood.spin(fwd, 12, voltageUnits::volt);
+  wait(1200, msec);
+  hood.stop(hold);
+  lower_intake.spin(reverse, 12, voltageUnits::volt);
+  moveToPoint(29, 0, -1, 4000, false, 12);
+  scraper.set(true);
+  turnToAngle(180, 1000, true, 12);
+  driveToWall(8.1, 800, 1200);
+  moveToPoint(42, 23, -1, 1200, true, 12);
+  hood.spin(reverse, 12, voltageUnits::volt);
+  wait(800, msec);
+  hood.stop(hold);
+  moveToPoint(42, 17, 1, 700, true, 12);
+  mid_goal.set(false);
+  hood.spin(reverse, 7, voltageUnits::volt);
+  wait(500, msec);
+  hood.stop(hold);
+  moveToPoint(42, 23, -1, 700, true, 12);
+  wait(300, msec);
+  moveToPoint(42, 17, 1, 700, true, 12);
+  turnToAngle(-90, 800, true, 10);
+  driveChassis(-12,-12);
+  
 
 }
 
@@ -94,28 +133,29 @@ void leftsidequal(){
     doinkerup(500);
    });
   moveToPoint(-5.5, 23, 1, 1200, false, 10);
-  moveToPoint(-16, 38, 1, 1200, false, 10);
-  thread([](){ doinker(300); });
+  moveToPoint(-17, 38, 1, 1500, true, 10);
+  thread([](){ doinker(200); });
   swing(270, 1, 900, true, 10);
-  wait(400, msec);
-  moveToPoint(7.5, 35, -1, 5000, false, 10);
+  wait(100, msec);
+  moveToPoint(4, 33.5, -1, 1300, false, 10);
   scraper.set(false);
   turnToAngle(-135, 900, true, 10);
-  hood.spin(reverse, 7, voltageUnits::volt);
+  driveTo(-2, 500, true);
+  hood.spin(reverse, 40, percentUnits::pct);
   wait(1000, msec);
   hood.stop(hold);
   moveToPoint(-22, 0, 1, 5000, false, 11);
   scraper.set(true);
+  mid_goal.set(true);
   turnToAngle(180, 3000, true, 10);
   driveToWall(8.1, 800, 1000);
   lower_intake.stop(coast);
-  mid_goal.set(true);
   moveToPoint(-22, 23, -1, 5000, true, 10);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   hood.spin(reverse, 12, voltageUnits::volt);
-  wait(1000, msec);
+  wait(800, msec);
   hood.stop(hold);
-  moveToPoint(-22, 11, 1, 5000, true, 8);
+  moveToPoint(-22, 11, 1, 1000, true, 8);
   mid_goal.set(false);
   hood.spin(reverse, 7, voltageUnits::volt);
   wait(500, msec);
@@ -125,14 +165,13 @@ void leftsidequal(){
   moveToPoint(-22, 19, 1, 1400, true, 11);
   turnToAngle(90, 800, true, 10);
   driveChassis(-12,-12);
-  wait(1000, msec);
-  driveChassis(0,0);
 
 
 }
 
 void skills() {
   scraper.set(true);
+  mid_goal.set(true);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
   moveToPoint(0, 28, 1, 2000, false, 10);
   turnToAngle(270, 1500, true, 10);
@@ -144,12 +183,11 @@ void skills() {
   driveToWall(17, 1000, 0);
   turnToAngle(90, 800, true, 10);
   thread([](){ 
-    mid_goal.set(true);
     wait(900, msec);
     hood.spin(reverse, 12, voltageUnits::volt);
    });
-  moveToPoint(80, 38, -1, 2000, false, 12);
-  wait(1500, msec);
+  moveToPoint(80, 39.5, -1, 2000, false, 12);
+  wait(1700, msec);
   hood.stop(hold);
   scraper.set(true);
   correct_angle = 90;
@@ -160,7 +198,7 @@ void skills() {
     hood.spin(reverse, 12, voltageUnits::volt);
     scraper.set(false);
    });
-  moveToPoint(80, 38, -1, 2000, true, 12);
+  moveToPoint(80, 39.5, -1, 2000, true, 12);
   wait(2000, msec);
   curveCircle(210, 9, 2000, true, 12);
   hood.stop(hold);
@@ -169,9 +207,10 @@ void skills() {
   turnToAngle(-45, 800, true, 10);
   moveToPoint(37.5, -9.5, -1, 2000, true, 10);
   mid_goal.set(false);
-  hood.spin(reverse, 6, voltageUnits::volt);
+  hood.spin(reverse, 50, percentUnits::pct);
   wait(1500, msec);
   swing(270, 1, 1000, false, 12);
+  mid_goal.set(true);
   hood.stop(hold);
   moveToPoint(5, -66, 1, 4000, true, 12);
   scraper.set(true);
@@ -185,7 +224,6 @@ void skills() {
   driveToWall(19.5, 1000, 0);
   turnToAngle(90, 800, true, 10);
   thread([](){ 
-    mid_goal.set(true);
     wait(900, msec);
     hood.spin(reverse, 12, voltageUnits::volt);
    });
