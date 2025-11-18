@@ -173,7 +173,7 @@ void skills() {
   scraper.set(true);
   mid_goal.set(true);
   lower_intake.spin(reverse, 12, voltageUnits::volt);
-  moveToPoint(0, 28, 1, 2000, false, 10);
+  moveToPoint(0, 29, 1, 2000, false, 10);
   turnToAngle(270, 1500, true, 10);
   driveToWall(8.1, 1000, 1200);
   moveToPoint(24, 40, -1, 2000, false, 10);
@@ -207,8 +207,8 @@ void skills() {
   turnToAngle(-45, 800, true, 10);
   moveToPoint(37.5, -9.5, -1, 2000, true, 10);
   mid_goal.set(false);
-  hood.spin(reverse, 50, percentUnits::pct);
-  wait(1500, msec);
+  hood.spin(reverse, 30, percentUnits::pct);
+  wait(1800, msec);
   swing(270, 1, 1000, false, 12);
   mid_goal.set(true);
   hood.stop(hold);
@@ -255,7 +255,7 @@ void skills() {
   wait(2000, msec);
   moveToPoint(-5, -45, -1, 2000, true, 10);
   turnToAngle(-40, 1500, true, 10);
-  boomerang(-23, 5, 1, 0, 0.4, 5000, true, 12);
+  boomerang(-23, 8, 1, 0, 0.4, 15000, true, 12);
 }
 
 void elimleft(){

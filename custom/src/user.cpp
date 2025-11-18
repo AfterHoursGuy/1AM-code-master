@@ -5,7 +5,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 4; // change this to select different autonomous routines
+  int auton_selected = 7; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -38,6 +38,8 @@ void runAutonomous() {
 }
 
 // loading toggle L1
+int intakespeed = 100;
+
 static bool l1Prev = false;
 static bool intakeToggle = false;
 
@@ -181,7 +183,8 @@ void runDriver() {
       if (middleGoalState) {
         // R1 pressed + middle goal open → spin opposite
         lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(reverse, 12, voltageUnits::volt);
+        hood.spin(reverse, intakespeed, percentUnits::pct);
+        
         
       } else {
         // R1 pressed + middle goal closed → normal forward
@@ -228,9 +231,11 @@ void runDriver() {
     }
     rightPrev = button_right_arrow;
 
-    if (button_b) {
-      resetPositionFrontRight();
+    static bool yPrev = false;
+    if (button_y && !yPrev) {
+      intakespeed = (intakespeed == 100) ? 30 : 100;
     }
+    yPrev = button_y;
 
     wait(10, msec); 
    
@@ -265,6 +270,7 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
+  park.set(true);
   //calibrateFieldOrigin();  // <-- automatically sets new (0,0)
 
 }
