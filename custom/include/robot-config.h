@@ -14,6 +14,7 @@ extern motor right_chassis1;
 extern motor right_chassis2;
 extern motor right_chassis3;
 extern motor_group right_chassis;
+
 extern inertial inertial_sensor;
 extern optical block_counter_lower;
 extern optical block_counter_upper;
@@ -25,16 +26,12 @@ extern digital_out example_piston;
 extern rotation horizontal_tracker;
 extern rotation vertical_tracker;
 
-extern motor lower_intake1;
-extern motor lower_intake2;
-extern motor hood;
-extern motor_group lower_intake;
-extern motor_group intake;
+extern motor lower_intake;
+extern motor stick;
 extern digital_out scraper;
 extern digital_out mid_goal;
 extern digital_out park;
-extern digital_out hood_limiter;
-extern digital_out phood;
+extern digital_out wings;
 
 // USER-CONFIGURABLE PARAMETERS (CHANGE BEFORE USING THIS TEMPLATE)
 extern double distance_between_wheels;

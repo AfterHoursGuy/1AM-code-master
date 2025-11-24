@@ -55,7 +55,7 @@ void resetChassis() {
 double getLeftRotationDegree() {
   // Get left chassis motor position in degrees
   //return left_chassis.position(degrees);
-  return (left_chassis1.position(degrees) * 3 + left_chassis2.position(degrees) + left_chassis3.position(degrees)) / 3.0;
+  return (left_chassis.position(degrees));
 }
 
 /*
@@ -64,7 +64,7 @@ double getLeftRotationDegree() {
 double getRightRotationDegree() {
   // Get right chassis motor position in degrees
   //return right_chassis.position(degrees);
-  return (right_chassis1.position(degrees) + right_chassis2.position(degrees) * 3 + right_chassis3.position(degrees)) / 3.0;
+  return (right_chassis.position(degrees));
 }
 
 /*
@@ -1276,7 +1276,7 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
 
 void driveToWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
   //Reset and prepare
-  stopChassis(vex::brakeType::coast);
+  stopChassis(vex::brakeType::hold);
   is_turning = true;
 
   // PID for left and right wall distances
@@ -1423,7 +1423,6 @@ void resetPositionFrontLeft() {
   Brain.Screen.setCursor(4, 1);
   Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
 }
-
 
 // ============================================================================
 // TEMPLATE NOTE

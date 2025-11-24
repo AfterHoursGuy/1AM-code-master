@@ -1,11 +1,12 @@
 #include "vex.h"
 #include "motor-control.h"
 #include "../custom/include/autonomous.h"
+#include "pid.h"
 
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 3; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -37,83 +38,40 @@ void runAutonomous() {
   }
 }
 
-// loading toggle L1
-int intakespeed = 100;
+void softarmPID(double arm_target) {
+  PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
+  pidarm.setTarget(arm_target);   // Set target position
+  pidarm.setIntegralMax(0);  
+  pidarm.setIntegralRange(1);
+  pidarm.setSmallBigErrorTolerance(3, 3);
+  pidarm.setSmallBigErrorDuration(0, 0);
+  pidarm.setDerivativeTolerance(100);
+  pidarm.setArrive(true);
 
-static bool l1Prev = false;
-static bool intakeToggle = false;
-
-const int BLOCK_COUNT_TARGET = 7;
-const int DEBOUNCE_TIME_MS = 50;
-
-int blockCount = 0;
-
-void block_count() {
-  bool lowerPrevDetected = false;
-  bool upperPrevDetected = false;
-
-  while (true) {
-    // --- Detect intake direction ---
-    double intakePower = lower_intake.velocity(percent); // or use .power() depending on setup
-    bool intakeForward = intakePower < -5;  // pulling blocks in (reverse spin)
-    bool intakeReverse = intakePower > 5;   // spitting blocks out (forward spin)
-    bool hoodScoring = hood.velocity(percent) < -5; // hood running to score
-
-    // --- LOWER SENSOR (block entering when intake pulling in) ---
-    if (block_counter_lower.isNearObject() && !lowerPrevDetected && intakeReverse) {
-      lowerPrevDetected = true;
-      blockCount--;
-
-      if (blockCount >= BLOCK_COUNT_TARGET) {
-        hood.stop(coast);
-        wait(2000, msec);
-        blockCount = 0;  // optional reset
-      }
-
-      wait(DEBOUNCE_TIME_MS, msec);
-    }
-
-    if (!block_counter_lower.isNearObject()) {
-      lowerPrevDetected = false;
-    }
-
-    if (block_counter_lower.isNearObject() && !lowerPrevDetected && intakeForward) {
-      lowerPrevDetected = true;
-      blockCount++;
-
-      if (blockCount >= BLOCK_COUNT_TARGET) {
-        hood.stop(coast);
-        wait(2000, msec);
-        blockCount = 0;  // optional reset
-      }
-
-      wait(DEBOUNCE_TIME_MS, msec);
-    }
-
-    if (!block_counter_lower.isNearObject()) {
-      lowerPrevDetected = false;
-    }
-
-    // --- UPPER SENSOR (block leaving when intake reversing) ---
-    if (block_counter_upper.isNearObject() && !upperPrevDetected && intakeForward && hoodScoring) {
-      upperPrevDetected = true;
-      if (blockCount > 0) blockCount--;
-
-      if (blockCount >= BLOCK_COUNT_TARGET) {
-        hood.stop(coast);
-        wait(2000, msec);
-        blockCount = 0;  // optional reset
-      }
-
-      wait(DEBOUNCE_TIME_MS, msec);
-    }
-
-    if (!block_counter_upper.isNearObject()) {
-      upperPrevDetected = false;
-    }
-
-    wait(10, msec);
+  while(true) {
+    stick.spin(fwd, pidarm.update(stick.position(deg)), volt); // Apply PID output to arm motor
+    if (pidarm.targetArrived())
+      break;
   }
+  
+}
+
+void fastarmPID(double arm_target) {
+  PID pidarmfast = PID(5, 0, 0); // Initialize PID controller for arm
+  pidarmfast.setTarget(arm_target);   // Set target position
+  pidarmfast.setIntegralMax(0);  
+  pidarmfast.setIntegralRange(1);
+  pidarmfast.setSmallBigErrorTolerance(2, 2);
+  pidarmfast.setSmallBigErrorDuration(0, 0);
+  pidarmfast.setDerivativeTolerance(100);
+  pidarmfast.setArrive(true);
+
+  while(true) {
+    stick.spin(fwd, pidarmfast.update(stick.position(deg)), volt); // Apply PID output to arm motor
+    if (pidarmfast.targetArrived())
+      break;
+  }
+  
 }
 
 // Slight exponential scaling for joystick input
@@ -140,10 +98,16 @@ bool parkPistonState = false;
 bool hoodLimiterState = false;
 bool phoodState = false;
 
+static bool l1Prev = false;
+static bool intakeToggle = false;
+bool btnPrev = false;
+int pressStart = 0;
+bool longPress = false;
+
+
 void runDriver() {
   stopChassis(coast);
   heading_correction = false;
-  thread([](){block_count();});
 
   while (true) {
     // [-100, 100] for controller stick axis values
@@ -173,37 +137,61 @@ void runDriver() {
     double rightPower = expoDrive(ch2, 1.4) * 0.12;  
     driveChassis(leftPower, rightPower);
 
-      if (l1 && !l1Prev) {  // rising edge detection
-        intakeToggle = !intakeToggle;
-      }
-      l1Prev = l1;
+    bool btn = controller_1.ButtonL1.pressing();
+
+    // Button pressed this moment
+    if (btn && !btnPrev) {
+        pressStart = Brain.timer(msec);
+        longPress = false;
+    }
+
+    // If held long enough → reverse
+    if (btn && !longPress && Brain.timer(msec) - pressStart > 200) {
+        longPress = true;
+    }
+
+    // Handle release
+    if (!btn && btnPrev) {
+        if (!longPress) {
+            // short press → toggle
+            intakeToggle = !intakeToggle;
+        }
+        // if longPress: do nothing → return to toggle state
+    }
+
+    // Apply motor behavior
+    if (longPress && btn) {
+        // reverse while holding long press
+        lower_intake.spin(reverse, 12, voltageUnits::volt);
+    }
+    else if (intakeToggle) {
+        // normal toggle state
+        lower_intake.spin(forward, 12, voltageUnits::volt);
+    }
+    else {
+        lower_intake.stop(coast);
+    }
+
+    btnPrev = btn;
 
     // Intake & hood control with middle goal condition
     if (r1) {
-      if (middleGoalState) {
-        // R1 pressed + middle goal open → spin opposite
-        lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(reverse, intakespeed, percentUnits::pct);
-        
-        
-      } else {
-        // R1 pressed + middle goal closed → normal forward
-        lower_intake.spin(reverse, 12, voltageUnits::volt);
-        hood.spin(reverse, 30, percentUnits::pct);
-      }
+      thread([]{
+      fastarmPID(0);
+      fastarmPID(-128);
+    });
+      lower_intake.spin(forward, 12, voltageUnits::volt);
       
     } else if (r2) {
-      // R2 → reverse both
-      lower_intake.spin(fwd, 12, voltageUnits::volt);
-      hood.spin(fwd, 12, voltageUnits::volt);
-    } else if (intakeToggle) {
-      // L1 toggle ON → forward lower intake only
-      lower_intake.spin(reverse, 12, voltageUnits::volt);
-      hood.stop(hold);
+      thread([]{
+      softarmPID(0);
+      fastarmPID(-128);
+    });
+      lower_intake.spin(forward, 12, voltageUnits::volt);
+
     } else {
-      // Nothing pressed → stop both
-      lower_intake.stop(coast);
-      hood.stop(hold);
+      stick.stop(hold);
+      
     }
 
     // Scraper toggle on L2
@@ -227,18 +215,10 @@ void runDriver() {
     if (button_right_arrow && !rightPrev) {
     middleGoalState = !middleGoalState;
     mid_goal.set(middleGoalState);
-    blockCount = 0;
     }
     rightPrev = button_right_arrow;
 
-    static bool yPrev = false;
-    if (button_y && !yPrev) {
-      intakespeed = (intakespeed == 100) ? 30 : 100;
-    }
-    yPrev = button_y;
-
     wait(10, msec); 
-   
   }
 }
 
@@ -270,7 +250,7 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
-  park.set(true);
+  softarmPID(-128);
   //calibrateFieldOrigin();  // <-- automatically sets new (0,0)
 
 }
