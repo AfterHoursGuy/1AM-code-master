@@ -1322,106 +1322,42 @@ void driveToWall(double target_in, double time_limit_msec, double hold_time, boo
 
 }
 
-// === CONSTANTS ===
-const double FIELD_SIZE_IN = 144.0;     // 12 ft field
-const double FRONT_SENSOR_OFFSET = 2.75; // distance from robot center to front sensors
-const double SIDE_SENSOR_OFFSET  = 6.375; // distance from robot center to side sensors
 
-// === GLOBAL ORIGIN OFFSET (how far 0,0 is from robot start) ===
-double origin_x = 0.0;
-double origin_y = 0.0;
 
-// === FUNCTION: CALIBRATE FIELD ORIGIN ===
-void calibrateFieldOrigin() {
+void softarmPID(double arm_target) {
+  PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
+  pidarm.setTarget(arm_target);   // Set target position
+  pidarm.setIntegralMax(0);  
+  pidarm.setIntegralRange(1);
+  pidarm.setSmallBigErrorTolerance(3, 3);
+  pidarm.setSmallBigErrorDuration(0, 0);
+  pidarm.setDerivativeTolerance(100);
+  pidarm.setArrive(true);
 
-  // --- take several readings to reduce noise ---
-  const int samples = 5;
-  double frontTotal = 0, leftTotal = 0, rightTotal = 0;
-
-  for (int i = 0; i < samples; i++) {
-    frontTotal += (Lwall_distance_sensor.objectDistance(inches) + Rwall_distance_sensor.objectDistance(inches)) / 2.0;
-    leftTotal  += leftSide.objectDistance(inches);
-    rightTotal += rightSide.objectDistance(inches);
-    wait(20, msec);
+  while(true) {
+    stick.spin(fwd, pidarm.update(stick.position(deg)), volt); // Apply PID output to arm motor
+    if (pidarm.targetArrived())
+      break;
   }
-
-  double frontDist = frontTotal / samples;
-  double leftDist  = leftTotal / samples;
-  double rightDist = rightTotal / samples;
-
-  // --- compute distances from walls to robot center ---
-  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
-  double x_from_left_wall = leftDist + SIDE_SENSOR_OFFSET;
-  double x_from_right_wall = rightDist + SIDE_SENSOR_OFFSET;
-
-  // --- estimate midpoint X (using both side sensors if both see walls) ---
-  double newX;
-  if (leftDist < 75 && rightDist < 75) {
-    newX = (x_from_left_wall + x_from_right_wall) / 2.0;
-  } else if (leftDist < 75) {
-    newX = x_from_left_wall;
-  } else if (rightDist < 75) {
-    newX = x_from_right_wall;
-  } else {
-    newX = 0; // if neither sees wall, assume 0
-  }
-
-  double newY = y_from_back_wall;
-
-  // --- define this as the new origin offset ---
-  origin_x = newX;
-  origin_y = newY;
-
-  // --- reset odometry so robot is at (0,0) ---
-  x_pos = 0;
-  y_pos = 0;
-
-  // --- print result ---
-  Brain.Screen.setCursor(2, 1);
-  Brain.Screen.print("Initialized Origin");
-  Brain.Screen.setCursor(4, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
-  Brain.Screen.setCursor(6, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", origin_x, origin_y);
+  
 }
 
+void fastarmPID(double arm_target) {
+  PID pidarmfast = PID(5, 0, 0); // Initialize PID controller for arm
+  pidarmfast.setTarget(arm_target);   // Set target position
+  pidarmfast.setIntegralMax(0);  
+  pidarmfast.setIntegralRange(1);
+  pidarmfast.setSmallBigErrorTolerance(2, 2);
+  pidarmfast.setSmallBigErrorDuration(0, 0);
+  pidarmfast.setDerivativeTolerance(100);
+  pidarmfast.setArrive(true);
 
-void resetPositionFrontRight() {
-  // One sample for speed
-  double frontDist = (Lwall_distance_sensor.objectDistance(inches) + Rwall_distance_sensor.objectDistance(inches)) / 2.0;
-  double rightDist = rightSide.objectDistance(inches);
-
-  // Compute distances from field walls
-  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
-  double x_from_right_wall = rightDist + SIDE_SENSOR_OFFSET;
-
-  // Update field-relative position
-  x_pos = x_from_right_wall - origin_x;
-  y_pos = y_from_back_wall - origin_y;
-
-  // Print result
-  Brain.Screen.clearScreen();
-  Brain.Screen.setCursor(2, 1);
-  Brain.Screen.print("Reset: Front+Right");
-  Brain.Screen.setCursor(4, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
-}
-
-void resetPositionFrontLeft() {
-  double frontDist = (Lwall_distance_sensor.objectDistance(inches) + Rwall_distance_sensor.objectDistance(inches)) / 2.0;
-  double leftDist  = leftSide.objectDistance(inches);
-
-  double y_from_back_wall = frontDist + FRONT_SENSOR_OFFSET;
-  double x_from_left_wall = leftDist + SIDE_SENSOR_OFFSET;
-
-  x_pos = x_from_left_wall - origin_x;
-  y_pos = y_from_back_wall - origin_y;
-
-  Brain.Screen.clearScreen();
-  Brain.Screen.setCursor(2, 1);
-  Brain.Screen.print("Reset: Front+Left");
-  Brain.Screen.setCursor(4, 1);
-  Brain.Screen.print("X: %.1f  Y: %.1f", x_pos, y_pos);
+  while(true) {
+    stick.spin(fwd, pidarmfast.update(stick.position(deg)), volt); // Apply PID output to arm motor
+    if (pidarmfast.targetArrived())
+      break;
+  }
+  
 }
 
 // ============================================================================

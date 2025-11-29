@@ -27,9 +27,9 @@ motor right_chassis3 = motor(PORT4, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
 inertial inertial_sensor = inertial(PORT20);
-optical block_counter_lower = optical(PORT17);
-optical block_counter_upper = optical(PORT19);
-distance Rwall_distance_sensor = distance(PORT16);
+optical block_counter_lower = optical(PORT5);
+optical block_counter_upper = optical(PORT5);
+distance Rwall_distance_sensor = distance(PORT17);
 distance Lwall_distance_sensor = distance(PORT18);
 distance rightSide = distance(PORT12);
 distance leftSide = distance(PORT13);
@@ -53,7 +53,7 @@ digital_out wings = digital_out(Brain.ThreeWirePort.D);
 // ============================================================================
 
 // Distance between the middles of the left and right wheels of the drive (in inches)
-double distance_between_wheels = 10.3;
+double distance_between_wheels = 10.2;
 
 // motor to wheel gear ratio * wheel diameter (in inches) * pi
 double wheel_distance_in = (48.0 / 60.0) * 3.25 * M_PI;

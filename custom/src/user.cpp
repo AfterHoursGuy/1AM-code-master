@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 3; // change this to select different autonomous routines
+  int auton_selected = 8; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -33,45 +33,19 @@ void runAutonomous() {
       elimleft();
       break;
     case 9:
-    elimright();
+      elimright();
       break;
   }
 }
 
-void softarmPID(double arm_target) {
-  PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
-  pidarm.setTarget(arm_target);   // Set target position
-  pidarm.setIntegralMax(0);  
-  pidarm.setIntegralRange(1);
-  pidarm.setSmallBigErrorTolerance(3, 3);
-  pidarm.setSmallBigErrorDuration(0, 0);
-  pidarm.setDerivativeTolerance(100);
-  pidarm.setArrive(true);
+bool intaken = false;
 
-  while(true) {
-    stick.spin(fwd, pidarm.update(stick.position(deg)), volt); // Apply PID output to arm motor
-    if (pidarm.targetArrived())
-      break;
-  }
-  
-}
-
-void fastarmPID(double arm_target) {
-  PID pidarmfast = PID(5, 0, 0); // Initialize PID controller for arm
-  pidarmfast.setTarget(arm_target);   // Set target position
-  pidarmfast.setIntegralMax(0);  
-  pidarmfast.setIntegralRange(1);
-  pidarmfast.setSmallBigErrorTolerance(2, 2);
-  pidarmfast.setSmallBigErrorDuration(0, 0);
-  pidarmfast.setDerivativeTolerance(100);
-  pidarmfast.setArrive(true);
-
-  while(true) {
-    stick.spin(fwd, pidarmfast.update(stick.position(deg)), volt); // Apply PID output to arm motor
-    if (pidarmfast.targetArrived())
-      break;
-  }
-  
+void intaker() {
+  intaken = true;
+  lower_intake.spin(forward, 12, voltageUnits::volt);
+  wait(500, msec);
+  lower_intake.stop(coast);
+  intaken = false;
 }
 
 // Slight exponential scaling for joystick input
@@ -95,10 +69,8 @@ int chassis_flag = 0;
 bool scraperState = false;
 bool middleGoalState = false;
 bool parkPistonState = false;
-bool hoodLimiterState = false;
-bool phoodState = false;
+bool wingState = false;
 
-static bool l1Prev = false;
 static bool intakeToggle = false;
 bool btnPrev = false;
 int pressStart = 0;
@@ -168,7 +140,7 @@ void runDriver() {
         // normal toggle state
         lower_intake.spin(forward, 12, voltageUnits::volt);
     }
-    else {
+    else if (!intaken) {
         lower_intake.stop(coast);
     }
 
@@ -176,19 +148,38 @@ void runDriver() {
 
     // Intake & hood control with middle goal condition
     if (r1) {
+      wings.set(false);
+      wait(50, msec);
+      thread([]{intaker();});
       thread([]{
-      fastarmPID(0);
-      fastarmPID(-128);
-    });
-      lower_intake.spin(forward, 12, voltageUnits::volt);
+        fastarmPID(135);
+        fastarmPID(1);
+        wings.set(true);
+      });
+      
       
     } else if (r2) {
-      thread([]{
-      softarmPID(0);
-      fastarmPID(-128);
-    });
-      lower_intake.spin(forward, 12, voltageUnits::volt);
+      if (middleGoalState) {
+        wings.set(false);
+        wait(50, msec);
+        thread([]{intaker();});
+        thread([]{
+          softarmPID(135);
+          fastarmPID(1);
+          wings.set(true);
+        });
 
+      } else {
+        wings.set(false);
+        wait(50, msec);
+        thread([]{intaker();});
+        thread([]{
+          softarmPID(145);
+          fastarmPID(1);
+          wings.set(true);
+        });
+      }
+      
     } else {
       stick.stop(hold);
       
@@ -217,6 +208,13 @@ void runDriver() {
     mid_goal.set(middleGoalState);
     }
     rightPrev = button_right_arrow;
+
+    static bool yPrev = false;
+    if (button_y && !yPrev) {
+    wingState = !wingState;
+    wings.set(wingState);
+    }
+    yPrev = button_y;
 
     wait(10, msec); 
   }
@@ -250,7 +248,6 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
-  softarmPID(-128);
   //calibrateFieldOrigin();  // <-- automatically sets new (0,0)
 
 }

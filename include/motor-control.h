@@ -34,3 +34,5 @@ void driveToWall(double target_distance_in, double time_limit_msec, double hold_
 void calibrateFieldOrigin();
 void resetPositionFrontRight();
 void resetPositionFrontLeft();
+void softarmPID(double arm_target);
+void fastarmPID(double arm_target);
