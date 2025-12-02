@@ -33,6 +33,7 @@ distance Rwall_distance_sensor = distance(PORT17);
 distance Lwall_distance_sensor = distance(PORT18);
 distance rightSide = distance(PORT12);
 distance leftSide = distance(PORT13);
+distance backSide = distance(PORT14);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
 // Format is rotation(port, reversed)

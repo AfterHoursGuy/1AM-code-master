@@ -22,6 +22,7 @@ extern distance Rwall_distance_sensor;
 extern distance Lwall_distance_sensor;
 extern distance rightSide;
 extern distance leftSide;
+extern distance backSide;
 extern digital_out example_piston;
 extern rotation horizontal_tracker;
 extern rotation vertical_tracker;

@@ -14,6 +14,9 @@ bool is_turning = false;
 double prev_left_output = 0, prev_right_output = 0;
 double x_pos = 0, y_pos = 0;
 double correct_angle = 0;
+// Field origin offset - used to set current position as (0,0)
+double field_origin_offset_x = 0;
+double field_origin_offset_y = 0;
 
 // ============================================================================
 // CHASSIS CONTROL FUNCTIONS
@@ -1322,7 +1325,248 @@ void driveToWall(double target_in, double time_limit_msec, double hold_time, boo
 
 }
 
+/*
+ * calculatePositionFromSensors
+ * Calculates the robot's position on the field using distance sensors and the inertial sensor.
+ * Uses trigonometry to triangulate position based on distances to walls and robot heading.
+ * 
+ * Sensor configuration:
+ * - Rwall_distance_sensor: Right front sensor (on front, right side)
+ * - Lwall_distance_sensor: Left front sensor (on front, left side)
+ * - backSide: Rear sensor (on back of robot)
+ * - rightSide: Right side sensor
+ * - leftSide: Left side sensor
+ * 
+ * - field_width: Width of the field in inches (distance between left and right walls)
+ * - field_length: Length of the field in inches (distance between front and back walls)
+ * - front_sensor_offset_x: Horizontal offset of front sensors from robot center (positive = right, in inches)
+ * - front_sensor_offset_y: Vertical offset of front sensors from robot center (positive = forward, in inches)
+ * - side_sensor_offset_x: Horizontal offset of side sensors from robot center (positive = right, in inches)
+ * - back_sensor_offset_y: Vertical offset of back sensor from robot center (positive = forward, in inches)
+ * 
+ * Updates global x_pos and y_pos variables with calculated position (relative to field origin offset).
+ * 
+ * Coordinate system: 
+ * - x increases to the right
+ * - y increases forward
+ * - Heading 0° = facing forward (positive y direction)
+ */
+void calculatePositionFromSensors(double field_width, double field_length, 
+                                   double front_sensor_offset_x = 0, double front_sensor_offset_y = 0,
+                                   double side_sensor_offset_x = 0, double back_sensor_offset_y = 0) {
+  // Get current heading from inertial sensor (in degrees)
+  double heading_deg = getInertialHeading();
+  double heading_rad = degToRad(heading_deg);
+  
+  // Get distances from all distance sensors (in inches)
+  double dist_right_side = rightSide.objectDistance(inches);
+  double dist_left_side = leftSide.objectDistance(inches);
+  double dist_rwall_front = Rwall_distance_sensor.objectDistance(inches);  // Right front sensor
+  double dist_lwall_front = Lwall_distance_sensor.objectDistance(inches);  // Left front sensor
+  double dist_back = backSide.objectDistance(inches);  // Rear sensor
+  
+  // Check if sensors are reading valid values (distance sensors return -1 if no object detected)
+  bool valid_right_side = (dist_right_side > 0 && dist_right_side < 200);
+  bool valid_left_side = (dist_left_side > 0 && dist_left_side < 200);
+  bool valid_rwall_front = (dist_rwall_front > 0 && dist_rwall_front < 200);
+  bool valid_lwall_front = (dist_lwall_front > 0 && dist_lwall_front < 200);
+  bool valid_back = (dist_back > 0 && dist_back < 200);
+  
+  // Calculate X position using side sensors (rightSide and leftSide)
+  // These sensors measure distance to the left and right walls
+  double absolute_x = 0;
+  if (valid_right_side && valid_left_side) {
+    // When both sensors are valid, use the difference to find position
+    // If robot is centered: left_dist ≈ right_dist
+    // If robot is to the right: right_dist < left_dist
+    // Position from center = (left_dist - right_dist) / 2
+    double x_from_center = (dist_left_side - dist_right_side) / 2.0;
+    
+    // Account for sensor offset: project offset onto x-axis based on heading
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad) - 0 * sin(heading_rad);
+    absolute_x = x_from_center - offset_x_component;
+    
+  } else if (valid_right_side) {
+    // Only right sensor valid: distance to right wall = field_width/2 - x_pos
+    // So: x_pos = field_width/2 - distance_to_right_wall
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad);
+    absolute_x = field_width / 2.0 - dist_right_side - offset_x_component;
+    
+  } else if (valid_left_side) {
+    // Only left sensor valid: distance to left wall = field_width/2 + x_pos
+    // So: x_pos = -field_width/2 + distance_to_left_wall
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad);
+    absolute_x = -field_width / 2.0 + dist_left_side - offset_x_component;
+  }
+  
+  // Calculate Y position using front sensors (Rwall and Lwall) and back sensor (backSide)
+  // Front sensors: Rwall (right front) and Lwall (left front)
+  // Back sensor: backSide
+  
+  double absolute_y = 0;
+  bool y_calculated = false;
+  
+  // Try using front sensors first
+  if (valid_rwall_front && valid_lwall_front) {
+    // Average the two front sensor readings for better accuracy
+    double avg_front_dist = (dist_rwall_front + dist_lwall_front) / 2.0;
+    
+    // Normalize heading to 0-360 range
+    double normalized_heading = fmod(heading_deg + 360, 360);
+    
+    // Project the sensor reading onto the field coordinate system
+    // The front sensors measure distance perpendicular to the front face
+    // cos(heading) gives us the forward component
+    double forward_component = avg_front_dist * cos(heading_rad);
+    
+    // Account for sensor offset: project offset onto y-axis
+    double offset_y_component = front_sensor_offset_y * cos(heading_rad) + front_sensor_offset_x * sin(heading_rad);
+    
+    // Determine which wall we're facing based on heading
+    if (normalized_heading < 90 || normalized_heading > 270) {
+      // Facing forward (positive y direction) or slightly to the sides
+      // Distance to forward wall = field_length/2 - y_pos
+      // So: y_pos = field_length/2 - distance_to_wall
+      absolute_y = field_length / 2.0 - forward_component - offset_y_component;
+      y_calculated = true;
+    } else {
+      // Facing backward (negative y direction) or slightly to the sides
+      // Front sensors won't see the forward wall, so we'll use back sensor instead
+    }
+  }
+  
+  // If front sensors didn't work or we're facing backward, use back sensor
+  if (!y_calculated && valid_back) {
+    double normalized_heading = fmod(heading_deg + 360, 360);
+    
+    // Back sensor is mounted on the back of the robot and points backward
+    // The sensor reading is the perpendicular distance to the back wall
+    // When facing backward (heading ~180°), the sensor directly measures distance to back wall
+    // When facing other directions, we need to project the reading based on heading
+    
+    // The back sensor reading needs to be projected onto the y-axis
+    // Since the sensor points backward, we use -cos(heading) to get the y-component
+    // (negative because sensor points in negative y direction)
+    double backward_component = -dist_back * cos(heading_rad);
+    
+    // Account for sensor offset: back sensor is behind center (negative y offset)
+    // Project the offset onto the y-axis based on heading
+    double offset_y_component = -back_sensor_offset_y * cos(heading_rad);
+    
+    // Calculate y position: distance to back wall = field_length/2 + |y_pos| when y is negative
+    // If back sensor reads d, and back wall is at -field_length/2:
+    // d = |y_pos - back_sensor_offset_y - (-field_length/2)|
+    // For positions near back wall (y < 0): d = -(y_pos - back_sensor_offset_y + field_length/2)
+    // So: y_pos = -d + back_sensor_offset_y - field_length/2
+    // But we need to account for heading projection
+    absolute_y = -field_length / 2.0 + backward_component - offset_y_component;
+    y_calculated = true;
+  }
+  
+  // If we still don't have y position, try using side sensors with heading
+  if (!y_calculated && (valid_right_side || valid_left_side)) {
+    double side_dist = valid_right_side ? dist_right_side : dist_left_side;
+    // Project side sensor distance onto y-axis based on heading
+    // When facing perpendicular to walls, side distance relates to y position
+    double y_component = side_dist * sin(heading_rad);
+    double offset_y_component = front_sensor_offset_y * cos(heading_rad) + side_sensor_offset_x * sin(heading_rad);
+    absolute_y = y_component - offset_y_component;
+  }
+  
+  // Apply field origin offset to get position relative to (0,0) origin
+  x_pos = absolute_x - field_origin_offset_x;
+  y_pos = absolute_y - field_origin_offset_y;
+}
 
+/*
+ * detectAndSetInitialPosition
+ * Detects the robot's current absolute position on the field using sensors,
+ * then sets that position as the new (0,0) origin for the auton routine.
+ * 
+ * This allows different auton routines to have different starting positions as (0,0).
+ * 
+ * - field_width: Width of the field in inches
+ * - field_length: Length of the field in inches
+ * - front_sensor_offset_x: Horizontal offset of front sensors from robot center (positive = right, in inches)
+ * - front_sensor_offset_y: Vertical offset of front sensors from robot center (positive = forward, in inches)
+ * - side_sensor_offset_x: Horizontal offset of side sensors from robot center (positive = right, in inches)
+ * - back_sensor_offset_y: Vertical offset of back sensor from robot center (positive = forward, in inches)
+ * 
+ * After calling this function, the current robot position will be (0,0) and all
+ * subsequent position calculations will be relative to this origin.
+ */
+void detectAndSetInitialPosition(double field_width, double field_length,
+                                  double front_sensor_offset_x = 0, double front_sensor_offset_y = 0,
+                                  double side_sensor_offset_x = 0, double back_sensor_offset_y = 0) {
+  // Calculate absolute position on field
+  double heading_deg = getInertialHeading();
+  double heading_rad = degToRad(heading_deg);
+  
+  // Get distances from all distance sensors
+  double dist_right_side = rightSide.objectDistance(inches);
+  double dist_left_side = leftSide.objectDistance(inches);
+  double dist_rwall_front = Rwall_distance_sensor.objectDistance(inches);
+  double dist_lwall_front = Lwall_distance_sensor.objectDistance(inches);
+  double dist_back = backSide.objectDistance(inches);
+  
+  // Check if sensors are reading valid values
+  bool valid_right_side = (dist_right_side > 0 && dist_right_side < 200);
+  bool valid_left_side = (dist_left_side > 0 && dist_left_side < 200);
+  bool valid_rwall_front = (dist_rwall_front > 0 && dist_rwall_front < 200);
+  bool valid_lwall_front = (dist_lwall_front > 0 && dist_lwall_front < 200);
+  bool valid_back = (dist_back > 0 && dist_back < 200);
+  
+  // Calculate absolute X position
+  double absolute_x = 0;
+  if (valid_right_side && valid_left_side) {
+    double x_from_center = (dist_left_side - dist_right_side) / 2.0;
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad);
+    absolute_x = x_from_center - offset_x_component;
+  } else if (valid_right_side) {
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad);
+    absolute_x = field_width / 2.0 - dist_right_side - offset_x_component;
+  } else if (valid_left_side) {
+    double offset_x_component = side_sensor_offset_x * cos(heading_rad);
+    absolute_x = -field_width / 2.0 + dist_left_side - offset_x_component;
+  }
+  
+  // Calculate absolute Y position
+  double absolute_y = 0;
+  bool y_calculated = false;
+  
+  // Try front sensors first
+  if (valid_rwall_front && valid_lwall_front) {
+    double avg_front_dist = (dist_rwall_front + dist_lwall_front) / 2.0;
+    double normalized_heading = fmod(heading_deg + 360, 360);
+    double forward_component = avg_front_dist * cos(heading_rad);
+    double offset_y_component = front_sensor_offset_y * cos(heading_rad) + front_sensor_offset_x * sin(heading_rad);
+    
+    if (normalized_heading < 90 || normalized_heading > 270) {
+      absolute_y = field_length / 2.0 - forward_component - offset_y_component;
+      y_calculated = true;
+    }
+  }
+  
+  // Use back sensor if needed
+  if (!y_calculated && valid_back) {
+    // Back sensor is mounted on the back of the robot and points backward
+    // Project the sensor reading onto the y-axis based on heading
+    double backward_component = -dist_back * cos(heading_rad);
+    double offset_y_component = -back_sensor_offset_y * cos(heading_rad);
+    
+    // Calculate y position from back wall
+    absolute_y = -field_length / 2.0 + backward_component - offset_y_component;
+    y_calculated = true;
+  }
+  
+  // Set the field origin offset so current position becomes (0,0)
+  field_origin_offset_x = absolute_x;
+  field_origin_offset_y = absolute_y;
+  
+  // Reset position variables to (0,0)
+  x_pos = 0;
+  y_pos = 0;
+}
 
 void softarmPID(double arm_target) {
   PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
