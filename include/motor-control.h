@@ -1,5 +1,6 @@
 #include <string>
 #include <cmath>
+#include "vex.h"
 
 // --- Global Variables (snake_case) ---
 extern bool is_turning;
@@ -31,10 +32,14 @@ void turnToPoint(double x, double y, int dir, double time_limit_msec);
 void moveToPoint(double x, double y, int dir, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void boomerang(double x, double y, int dir, double a, double dlead, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void driveToWall(double target_distance_in, double time_limit_msec, double hold_time, bool exit = true, double max_output = 12);
-void calibrateFieldOrigin();
-void resetPositionFrontRight();
-void resetPositionFrontLeft();
-void calculatePositionFromSensors(double field_width, double field_length, double front_sensor_offset_x = 0, double front_sensor_offset_y = 0, double side_sensor_offset_x = 0, double back_sensor_offset_y = 0);
-void detectAndSetInitialPosition(double field_width, double field_length, double front_sensor_offset_x = 0, double front_sensor_offset_y = 0, double side_sensor_offset_x = 0, double back_sensor_offset_y = 0);
+void correctPositionWithSensors(vex::distance& front_sensor, vex::distance& side_sensor, double front_offset, double side_offset, double estimated_x, double estimated_y, double estimated_heading);
+void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double field_half_size);
+void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size);
+void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size);
+void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size);
+void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size);
+void setFieldDimensions(double half_width, double half_length);
+void initializeFieldPosition(vex::distance& x_sensor, double x_sensor_offset_x, double x_sensor_offset_y, double x_sensor_angle, vex::distance& y_sensor, double y_sensor_offset_x, double y_sensor_offset_y, double y_sensor_angle);
 void softarmPID(double arm_target);
 void fastarmPID(double arm_target);
+void lights(int _red, int _green, int _blue);

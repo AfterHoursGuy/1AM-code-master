@@ -38,12 +38,62 @@ void exampleAuton() {
 }
 
 void exampleAuton2() {
-  driveTo(24, 2000);
-  resetPositionFrontLeft();
+  resetChassis();
+  initializeFieldPosition(Rwall_distance_sensor, 4.125, 5, 0, rightSide, 6.375, 0, 90);
+  wait(10, msec);
+  correct_angle = 90;
+  driveTo(12, 1000, true, 8);
+  resetPositionRight(rightSide, 6.375, 0, 70.7);
+  resetPositionBack(Rwall_distance_sensor, 4.125, 5, 70.7);
+  
 }
 
 void sigsoloAWP(){
-  
+  mid_goal.set(true);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  gate.set(true);
+  driveTo(6, 1000, true, 10);
+  wait(200, msec);
+  moveToPoint(0, -33.5, -1, 1300, true, 10);
+  scraper.set(true);
+  wait(100, msec);
+  turnToAngle(-90, 600);
+  driveToWall(7.5, 900, 200, true, 12);
+  moveToPoint(22.5, -40, -1, 1200, true, 10);
+  gate.set(false);
+  wait(50, msec);
+  stick.spin(fwd, 10, voltageUnits::volt);
+  wait(400, msec);
+  scraper.set(false);
+  stick.spin(fwd, -4, voltageUnits::volt);
+  gate.set(true);
+  driveTo(2, 1000, false, 12);
+  swing(40, 1, 1000, true, 9);
+  driveTo(10, 1000, false, 12);
+  boomerang(26, 44, 1, 0, 0.3, 2500, true, 9);
+  scraper.set(true);
+  mid_goal.set(false);
+  wait(400, msec);
+  scraper.set(false);
+  moveToPoint(34, 22.5, -1, 1200, true, 10);
+  gate.set(false);
+  wait(100, msec);
+  stick.spin(fwd, 11, voltageUnits::volt);
+  wait(250, msec);
+  stick.spin(fwd, -8, voltageUnits::volt);
+  gate.set(true);
+  mid_goal.set(true);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  boomerang(-2, 55, 1, -90, 0.3, 2000, true, 10);
+  scraper.set(true);
+  turnToAngle(-90, 600);
+  driveToWall(7.5, 900, 200, true, 12);
+  moveToPoint(21, 54, -1, 1200, true, 10);
+  gate.set(false);
+  wait(75, msec);
+  stick.spin(fwd, 10, voltageUnits::volt);
+  wait(600, msec);
+  stick.spin(fwd, -8, voltageUnits::volt);
 }
 
 void qualsoloawp(){
@@ -86,7 +136,7 @@ void skills() {
 void elimleft(){
   mid_goal.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
-  wings.set(true);
+  gate.set(true);
   thread([]{doinker(550);});
   moveToPoint(-5.5, 22, 1, 1000, true, 10);
   turnToPoint(-23, -5, 1, 800);
@@ -95,7 +145,7 @@ void elimleft(){
   driveToWall(7.5, 1200, 400, true, 12);
   scraper.set(false);
   moveToPoint(-23.5, 13.5, -1, 1800, true, 10);
-  wings.set(false);
+  gate.set(false);
   wait(100, msec);
   thread s = thread(score);
   wait(600, msec);
@@ -115,5 +165,31 @@ void elimleft(){
 }
 
 void elimright(){
-  
+  mid_goal.set(true);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  gate.set(true);
+  boomerang(27, 26, 1, 90, 0.4, 1500, false, 10); 
+  scraper.set(true);
+  boomerang(55, -8, 1, 180, 0.2, 2000, true, 9);
+  turnToAngle(180, 300);
+  driveToWall(7.5, 900, 300, true, 12);
+  moveToPoint(56, 16, -1, 1200, true, 10);
+  gate.set(false);
+  wait(50, msec);
+  thread s = thread(score);
+  wait(600, msec);
+  lower_intake.stop();
+  s.interrupt();
+  scraper.set(false);
+  driveTo(4, 1000, false, 12);
+  turnToAngle(90, 600);
+  driveToWall(7.5, 800, 0, true, 12);
+  turnToAngle(180, 600);
+  driveTo(-26, 10000, true, 12);
+  left_chassis.setStopping(hold);
+  right_chassis.setStopping(hold);
+  lower_intake.spin(forward, 1, voltageUnits::volt);
+  stick.spin(reverse, 12, voltageUnits::volt);
+  lower_intake.stop();
+
 }

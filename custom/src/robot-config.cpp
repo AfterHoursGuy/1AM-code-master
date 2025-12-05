@@ -31,9 +31,9 @@ optical block_counter_lower = optical(PORT5);
 optical block_counter_upper = optical(PORT5);
 distance Rwall_distance_sensor = distance(PORT17);
 distance Lwall_distance_sensor = distance(PORT18);
-distance rightSide = distance(PORT12);
-distance leftSide = distance(PORT13);
-distance backSide = distance(PORT14);
+distance rightSide = distance(PORT19);
+distance leftSide = distance(PORT12);
+distance backSide = distance(PORT13);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
 // Format is rotation(port, reversed)
@@ -48,6 +48,10 @@ digital_out scraper = digital_out(Brain.ThreeWirePort.A);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
 digital_out park = digital_out(Brain.ThreeWirePort.C);
 digital_out wings = digital_out(Brain.ThreeWirePort.D);
+digital_out gate = digital_out(Brain.ThreeWirePort.E);
+motor29 RED1 = motor29(Brain.ThreeWirePort.F);
+motor29 BLUE1 = motor29(Brain.ThreeWirePort.G);
+motor29 GREEN1 = motor29(Brain.ThreeWirePort.H);
 
 // ============================================================================
 // USER-CONFIGURABLE PARAMETERS (CHANGE BEFORE USING THIS TEMPLATE)

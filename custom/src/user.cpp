@@ -4,9 +4,10 @@
 #include "pid.h"
 
 // Modify autonomous, driver, or pre-auton code below
+double starting_heading = 0; //change to autons starting heading
 
 void runAutonomous() {
-  int auton_selected = 8; // change this to select different autonomous routines
+  int auton_selected = 2; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -15,25 +16,25 @@ void runAutonomous() {
       exampleAuton2();
       break;  
     case 3:
-      leftsidequal();
+      leftsidequal(); //-90
       break;
     case 4:
-      rightsidequal();
+      rightsidequal(); //tbd
       break; 
     case 5:
-      sigsoloAWP();
+      sigsoloAWP(); //-90
       break;
     case 6:
-      qualsoloawp();
+      qualsoloawp(); //tbd
       break;
     case 7:
-      skills();
+      skills(); //tbd
       break;
     case 8:
-      elimleft();
+      elimleft(); //0
       break;
     case 9:
-      elimright();
+      elimright(); //0
       break;
   }
 }
@@ -148,35 +149,35 @@ void runDriver() {
 
     // Intake & hood control with middle goal condition
     if (r1) {
-      wings.set(false);
+      gate.set(false);
       wait(50, msec);
       thread([]{intaker();});
       thread([]{
         fastarmPID(135);
         fastarmPID(1);
-        wings.set(true);
+        gate.set(true);
       });
       
       
     } else if (r2) {
       if (middleGoalState) {
-        wings.set(false);
+        gate.set(false);
         wait(50, msec);
         thread([]{intaker();});
         thread([]{
           softarmPID(135);
           fastarmPID(1);
-          wings.set(true);
+          gate.set(true);
         });
 
       } else {
-        wings.set(false);
+        gate.set(false);
         wait(50, msec);
         thread([]{intaker();});
         thread([]{
           softarmPID(145);
           fastarmPID(1);
-          wings.set(true);
+          gate.set(true);
         });
       }
       
@@ -216,6 +217,14 @@ void runDriver() {
     }
     yPrev = button_y;
 
+    if (button_x) {
+      Brain.Screen.clearScreen();
+      Brain.Screen.setCursor(1, 1);
+      
+      
+      
+    }
+
     wait(10, msec); 
   }
 }
@@ -232,7 +241,7 @@ void runPreAutonomous() {
   while (inertial_sensor.isCalibrating()) {
     wait(10, msec);
   }
-
+  //inertial_sensor.setHeading(starting_heading, degrees);
   double current_heading = inertial_sensor.heading();
   Brain.Screen.print(current_heading);
   
@@ -248,6 +257,6 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
-  //calibrateFieldOrigin();  // <-- automatically sets new (0,0)
+  thread([]{lights(255, 0, 175);});
 
 }

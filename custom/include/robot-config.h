@@ -33,6 +33,10 @@ extern digital_out scraper;
 extern digital_out mid_goal;
 extern digital_out park;
 extern digital_out wings;
+extern digital_out gate;
+extern motor29 RED1;
+extern motor29 BLUE1;
+extern motor29 GREEN1;
 
 // USER-CONFIGURABLE PARAMETERS (CHANGE BEFORE USING THIS TEMPLATE)
 extern double distance_between_wheels;
