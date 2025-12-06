@@ -32,6 +32,8 @@ void turnToPoint(double x, double y, int dir, double time_limit_msec);
 void moveToPoint(double x, double y, int dir, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void boomerang(double x, double y, int dir, double a, double dlead, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void driveToWall(double target_distance_in, double time_limit_msec, double hold_time, bool exit = true, double max_output = 12);
+void driveFromWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output = 12);
+void driveToWallRight(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output = 12);
 void correctPositionWithSensors(vex::distance& front_sensor, vex::distance& side_sensor, double front_offset, double side_offset, double estimated_x, double estimated_y, double estimated_heading);
 void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double field_half_size);
 void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size);

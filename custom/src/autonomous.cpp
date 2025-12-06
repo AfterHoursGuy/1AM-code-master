@@ -130,37 +130,86 @@ void leftsidequal(){
 }
 
 void skills() {
+  resetChassis();
+  initializeFieldPosition(backSide, 0, 8.25, 180, leftSide, 6.375, 0, 270);
+  wait(10, msec);
+  stick.setStopping(hold);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  gate.set(true);
+  scraper.set(true);
+  wait(200, msec);
+  scraper.set(false);
+  driveTo(-2, 600);
+  wait(200, msec);
+  thread([]{doinker(1400);});
+  driveToWallRight(42, 2500, 0, true, 8);
+  wait(100, msec);
+  turnToAngle(-90, 600);
+  wait(100, msec);
+  resetPositionLeft(leftSide, 0, 6.375, 70.7);
+  resetPositionFront(Rwall_distance_sensor, 5, 4.125, 70.7);
+  wait(20, msec);
+  scraper.set(false);
+  boomerang(-45, -50, 1, -90, 0.1, 1000, true, 8);
+  wait(100, msec);
+  resetPositionLeft(leftSide, 0, 6.375, 70.7);
+  resetPositionFront(Rwall_distance_sensor, 5, 4.125, 70.7);
+  wait(100, msec);
+  turnToPoint(-20, -20, 1, 800);
+  wait(50, msec);
+  moveToPoint(-20, -20, 1, 1500, true, 8);
+  wait(75, msec);
+  turnToAngle(215, 1000);
+  wait(100, msec);
+  correct_angle = 215;
+  driveTo(-13, 1000, true, 8);
+  turnToAngle(215, 500);
+  gate.set(false);
+  stick.spin(fwd, 30, percent);
+  wait(1000, msec);
+  stick.spin(fwd, -2, voltageUnits::volt);
+  moveToPoint(-50, -55, 1, 1200, true, 10);
+  turnToAngle(180, 800);
+  scraper.set(true);
+  mid_goal.set(true);
+  driveToWall(7.5, 1200, 800, true, 12);
+  wait(100, msec);
+  resetPositionRight(rightSide, 6.375, 0, 70.7);
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.7);
+  wait(100, msec);
+  boomerang(-60, -20, -1, 0, 0.3, true, 10);
+  scraper.set(false);
   
+
 }
 
 void elimleft(){
   mid_goal.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   gate.set(true);
-  thread([]{doinker(550);});
-  moveToPoint(-5.5, 22, 1, 1000, true, 10);
-  turnToPoint(-23, -5, 1, 800);
-  moveToPoint(-23, -5, 1, 1000, true, 12);
-  turnToAngle(180, 1000);
-  driveToWall(7.5, 1200, 400, true, 12);
-  scraper.set(false);
-  moveToPoint(-23.5, 13.5, -1, 1800, true, 10);
+  boomerang(-20, 18, 1, -90, 0.4, 1500, false, 10); 
+  scraper.set(true);
+  boomerang(-38, -8, 1, 180, 0.2, 2000, true, 9);
+  turnToAngle(180, 300);
+  driveToWall(7.5, 900, 300, true, 12);
+  moveToPoint(-36.5, 15, -1, 1200, true, 10);
   gate.set(false);
-  wait(100, msec);
+  wait(50, msec);
   thread s = thread(score);
   wait(600, msec);
   lower_intake.stop();
-  driveTo(4, 1000, false, 12);
-  turnToAngle(-90, 800);
-  driveToWall(7.75, 700, 0, true, 12);
-  turnToAngle(180, 800);
-  driveTo(-35, 2000, true, 12);
   s.interrupt();
-  lower_intake.spin(forward, -12, voltageUnits::volt);
-  fastarmPID(0);
-  
-
-
+  scraper.set(false);
+  driveTo(4, 1000, false, 12);
+  turnToAngle(-90, 600);
+  driveToWall(28.5, 800, 0, true, 12);
+  turnToAngle(180, 600);
+  driveTo(-26, 10000, true, 12);
+  left_chassis.setStopping(hold);
+  right_chassis.setStopping(hold);
+  lower_intake.spin(forward, 1, voltageUnits::volt);
+  stick.spin(reverse, 1, voltageUnits::volt);
+  lower_intake.stop();
 
 }
 

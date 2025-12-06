@@ -1327,6 +1327,89 @@ void driveToWall(double target_in, double time_limit_msec, double hold_time, boo
 
 }
 
+void driveFromWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
+  //Reset and prepare
+  stopChassis(vex::brakeType::hold);
+  is_turning = true;
+
+  // PID for left and right wall distances
+  PID pid_back(distance_kp, distance_ki, distance_kd);
+  
+  pid_back.setTarget(target_in);
+
+  pid_back.setIntegralMax(2);
+  
+  pid_back.setSmallBigErrorTolerance(0.3, 1.0);
+  
+  pid_back.setSmallBigErrorDuration(75, 200);
+  
+  double back_output = 0;
+  double start_time = Brain.timer(msec);
+
+  // Main loop: move each side until both sensors are within tolerance
+  while ((!pid_back.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
+    double back_dist = backSide.objectDistance(inches);
+    
+    // PID updates (positive output = forward)
+    back_output = pid_back.update(back_dist);
+
+    // Scale outputs and limit acceleration
+    scaleToMax(back_output, back_output, max_output);
+
+    // Drive
+    driveChassis(back_output, back_output);
+    wait(20, msec);
+  }
+
+  // Stop and hold for specified time
+  stopChassis(vex::hold);
+  wait(hold_time, msec);
+  is_turning = false;
+
+}
+
+void driveToWallRight(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
+  //Reset and prepare
+  stopChassis(vex::brakeType::hold);
+  is_turning = true;
+
+  // PID for left and right wall distances
+  PID pid_fr(distance_kp, distance_ki, distance_kd);
+  
+  pid_fr.setTarget(target_in);
+
+  pid_fr.setIntegralMax(2);
+  
+  pid_fr.setSmallBigErrorTolerance(0.3, 1.0);
+  
+  pid_fr.setSmallBigErrorDuration(75, 200);
+  
+  double fr_output = 0;
+  double start_time = Brain.timer(msec);
+
+  // Main loop: move each side until both sensors are within tolerance
+  while ((!pid_fr.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
+    double fr_dist = Rwall_distance_sensor.objectDistance(inches);
+    
+    // PID updates (positive output = forward)
+    fr_output = pid_fr.update(fr_dist);
+
+    // Scale outputs and limit acceleration
+    scaleToMax(fr_output, fr_output, max_output);
+
+    // Drive
+    driveChassis(-fr_output, -fr_output);
+    wait(20, msec);
+  }
+
+  // Stop and hold for specified time
+  stopChassis(vex::hold);
+  wait(hold_time, msec);
+  is_turning = false;
+
+}
+
+
 void softarmPID(double arm_target) {
   PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
   pidarm.setTarget(arm_target);   // Set target position
@@ -1476,6 +1559,9 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
  */
 void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 0.0, field_half_size);
+    Brain.Screen.clearLine();
+    Brain.Screen.setCursor(8, 1);
+    Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
 /*
@@ -1490,8 +1576,9 @@ void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double se
  */
 void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 180.0, field_half_size);
+    Brain.Screen.clearLine();
     Brain.Screen.setCursor(8, 1);
-    Brain.Screen.print(" y pos: %.2f", y_pos);
+    Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
 /*
@@ -1506,6 +1593,9 @@ void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sen
  */
 void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 270.0, field_half_size);
+    Brain.Screen.clearLine();
+    Brain.Screen.setCursor(8, 1);
+    Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
 /*
@@ -1520,8 +1610,9 @@ void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sen
  */
 void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 90.0, field_half_size);
-    Brain.Screen.setCursor(7, 1);
-    Brain.Screen.print(" x pos: %.2f", x_pos);
+    Brain.Screen.clearLine();
+    Brain.Screen.setCursor(8, 1);
+    Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
 /*
