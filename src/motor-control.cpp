@@ -14,12 +14,11 @@ bool is_turning = false;
 double prev_left_output = 0, prev_right_output = 0;
 double x_pos = 0, y_pos = 0;
 double correct_angle = 0;
-// Distance sensor odometry variables
-double x_offset = 0, y_offset = 0;
-double heading_offset_rad = 0;
 // Field configuration
-double field_half_width = 70.7;  // Half field width (default 72" for 12ft field)
-double field_half_length = 70.7; // Half field length (default 72" for 12ft field)
+double field_half_width = 70.25;  // Half field width (default 72" for 12ft field)
+double field_half_length = 70.25; // Half field length (default 72" for 12ft field)
+double prevposx;
+double prevposy;
 
 // ============================================================================
 // CHASSIS CONTROL FUNCTIONS
@@ -1279,7 +1278,67 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
   is_turning = false;     // Reset turning state
 }
 
-void driveToWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
+void driveToWall2D(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output, vex::distance& sensor, double target_side_in) {
+  //Reset and prepare
+  stopChassis(vex::brakeType::hold);
+  is_turning = true;
+
+  double correction_kp = 0.2;
+  double correction_ki = 0.0;
+  double correction_kd = 0.0;
+
+  // PID for left and right wall distances
+  PID pid_left(distance_kp, distance_ki, distance_kd);
+  PID pid_right(distance_kp, distance_ki, distance_kd);
+  PID pid_side(correction_kp, correction_ki, correction_kd);
+
+  pid_left.setTarget(target_in);
+  pid_right.setTarget(target_in);
+  pid_side.setTarget(target_side_in);
+
+  pid_left.setIntegralMax(2);
+  pid_right.setIntegralMax(2);
+  pid_side.setIntegralMax(2);
+
+  pid_left.setSmallBigErrorTolerance(0.3, 1.0);
+  pid_right.setSmallBigErrorTolerance(0.3, 1.0);
+  pid_side.setSmallBigErrorTolerance(0.3, 1.0);
+
+  pid_left.setSmallBigErrorDuration(75, 200);
+  pid_right.setSmallBigErrorDuration(75, 200);
+  pid_side.setSmallBigErrorDuration(75, 200);
+
+  double left_output = 0, right_output = 0, turn = 0;
+  double start_time = Brain.timer(msec);
+
+  // Main loop: move each side until both sensors are within tolerance
+  while ((!pid_left.targetArrived() || !pid_right.targetArrived() || !pid_side.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
+    double left_dist = Lwall_distance_sensor.objectDistance(inches);
+    double right_dist = Rwall_distance_sensor.objectDistance(inches);
+    double side_dist = (sensor.objectDistance(inches));
+
+    // PID updates (positive output = forward)
+    turn = pid_side.update(side_dist);
+    left_output = pid_left.update(left_dist) + turn;
+    right_output = pid_right.update(right_dist) - turn;
+    
+
+    // Scale outputs and limit acceleration
+    scaleToMax(left_output, right_output, max_output);
+
+    // Drive
+    driveChassis(-left_output, -right_output);
+    wait(20, msec);
+  }
+
+  // Stop and hold for specified time
+  stopChassis(vex::hold);
+  wait(hold_time, msec);
+  is_turning = false;
+
+}
+
+  void driveToWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
   //Reset and prepare
   stopChassis(vex::brakeType::hold);
   is_turning = true;
@@ -1411,7 +1470,7 @@ void driveToWallRight(double target_in, double time_limit_msec, double hold_time
 
 
 void softarmPID(double arm_target) {
-  PID pidarm = PID(0.1, 0, 0.5); // Initialize PID controller for arm
+  PID pidarm = PID(0.1, 0, 0.4); // Initialize PID controller for arm
   pidarm.setTarget(arm_target);   // Set target position
   pidarm.setIntegralMax(0);  
   pidarm.setIntegralRange(1);
@@ -1429,7 +1488,7 @@ void softarmPID(double arm_target) {
 }
 
 void fastarmPID(double arm_target) {
-  PID pidarmfast = PID(5, 0, 0); // Initialize PID controller for arm
+  PID pidarmfast = PID(20, 0, 0); // Initialize PID controller for arm
   pidarmfast.setTarget(arm_target);   // Set target position
   pidarmfast.setIntegralMax(0);  
   pidarmfast.setIntegralRange(1);
@@ -1469,7 +1528,7 @@ void fastarmPID(double arm_target) {
  */
 void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double field_half_size) {
     double sensorReading = sensor.objectDistance(inches);
-    
+  
     // Check for invalid reading (distance sensors return -1 or very large values when no object detected)
     if (sensorReading < 0 || sensorReading > 200) {
         Brain.Screen.print("Invalid distance sensor reading: %.2f", sensorReading);
@@ -1539,11 +1598,15 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
     // Update position (only reset the appropriate axis)
     if (resettingX) {
         x_pos = actualPos;
+        prevposx = actualPos;
+        wait(10, msec);
+        actualPos = 0;
 
     } else {
         y_pos = actualPos;
-        
-        
+        prevposy = actualPos;
+        wait(10, msec);
+        actualPos = 0;
     }
 }
 
@@ -1559,8 +1622,8 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
  */
 void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 0.0, field_half_size);
+    Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
-    Brain.Screen.setCursor(8, 1);
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
@@ -1576,8 +1639,8 @@ void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double se
  */
 void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 180.0, field_half_size);
+    Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
-    Brain.Screen.setCursor(8, 1);
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
@@ -1593,8 +1656,8 @@ void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sen
  */
 void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 270.0, field_half_size);
+    Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
-    Brain.Screen.setCursor(8, 1);
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
@@ -1610,8 +1673,8 @@ void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sen
  */
 void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 90.0, field_half_size);
+    Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
-    Brain.Screen.setCursor(8, 1);
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
@@ -1651,7 +1714,6 @@ void initializeFieldPosition(vex::distance& x_sensor, double x_sensor_offset_x, 
     resetPositionWithSensor(y_sensor, y_sensor_offset_x, y_sensor_offset_y, y_sensor_angle, field_half_length);
 
     
-  
     Brain.Screen.setCursor(6, 1);
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
     
@@ -1696,6 +1758,10 @@ int run_lights_fn() {
   }
 
   return 0;
+}
+
+void moveToPrevPos() {
+  moveToPoint(prevposx, prevposy, -1, 1500, true, 10);
 }
 
 // ============================================================================

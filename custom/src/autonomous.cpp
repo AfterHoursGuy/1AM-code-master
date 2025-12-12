@@ -15,6 +15,12 @@ void score() {
   fastarmPID(135);
 }
 
+void reset() {
+  stick.spin(fwd, -7, voltageUnits::volt);
+  wait(500, msec);
+  stick.stop(hold);
+}
+
 void doinker(int t){
   wait(t, msec);
   scraper.set(true);
@@ -38,13 +44,7 @@ void exampleAuton() {
 }
 
 void exampleAuton2() {
-  resetChassis();
-  initializeFieldPosition(Rwall_distance_sensor, 4.125, 5, 0, rightSide, 6.375, 0, 90);
-  wait(10, msec);
-  correct_angle = 90;
-  driveTo(12, 1000, true, 8);
-  resetPositionRight(rightSide, 6.375, 0, 70.7);
-  resetPositionBack(Rwall_distance_sensor, 4.125, 5, 70.7);
+  driveToWall2D(12, 2000, 500, true, 10, leftSide, 12);
   
 }
 
@@ -131,55 +131,168 @@ void leftsidequal(){
 
 void skills() {
   resetChassis();
-  initializeFieldPosition(backSide, 0, 8.25, 180, leftSide, 6.375, 0, 270);
   wait(10, msec);
   stick.setStopping(hold);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
+  wings.set(true);
+  gate.set(true);
+  mid_goal.set(true);
+  boomerang(-20, 12, 1, -90, 0.4, 4000, false, 6); 
+  boomerang(-35.5, -8, 1, 180, 0.2, 2000, true, 8);
+  turnToAngle(180, 500);
+  moveToPoint(-35, 11, -1, 1500, true, 8);
+  driveToWall(34.75, 600, 0, true, 12);
+  gate.set(false);
+  stick.spin(fwd, 60, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(200, msec);
+  thread([]{reset();});
   gate.set(true);
   scraper.set(true);
-  wait(200, msec);
-  scraper.set(false);
-  driveTo(-2, 600);
-  wait(200, msec);
-  thread([]{doinker(1400);});
-  driveToWallRight(42, 2500, 0, true, 8);
+  initializeFieldPosition(rightSide, 6.375, 0, 90, Rwall_distance_sensor, 4.25, 5, 0);
+  moveToPoint(-46, -59, 1, 1200, true, 8);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  driveToWall(6.5, 1000, 250, true, 12);
+  driveToWall(10.5, 500, 0, true, 12);
+  driveToWall(6.5, 1000, 500, true, 12);
+  turnToAngle(180, 500);  
+  boomerang(-58, -24, -1, 180, 0.3, 1000, false, 11);
+  moveToPoint(-56, 42, -1, 1500, true, 11);
   wait(100, msec);
-  turnToAngle(-90, 600);
+  turnToAngle(90, 800);
   wait(100, msec);
-  resetPositionLeft(leftSide, 0, 6.375, 70.7);
-  resetPositionFront(Rwall_distance_sensor, 5, 4.125, 70.7);
-  wait(20, msec);
-  scraper.set(false);
-  boomerang(-45, -50, 1, -90, 0.1, 1000, true, 8);
+  driveFromWall(15, 1000, 0, true, 12);
   wait(100, msec);
-  resetPositionLeft(leftSide, 0, 6.375, 70.7);
-  resetPositionFront(Rwall_distance_sensor, 5, 4.125, 70.7);
+  turnToAngle(0, 800);
   wait(100, msec);
-  turnToPoint(-20, -20, 1, 800);
-  wait(50, msec);
-  moveToPoint(-20, -20, 1, 1500, true, 8);
-  wait(75, msec);
-  turnToAngle(215, 1000);
-  wait(100, msec);
-  correct_angle = 215;
-  driveTo(-13, 1000, true, 8);
-  turnToAngle(215, 500);
+  driveToWall(34.75, 1000, 0, true, 12);
   gate.set(false);
-  stick.spin(fwd, 30, percent);
-  wait(1000, msec);
-  stick.spin(fwd, -2, voltageUnits::volt);
-  moveToPoint(-50, -55, 1, 1200, true, 10);
-  turnToAngle(180, 800);
-  scraper.set(true);
-  mid_goal.set(true);
-  driveToWall(7.5, 1200, 800, true, 12);
-  wait(100, msec);
-  resetPositionRight(rightSide, 6.375, 0, 70.7);
-  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.7);
-  wait(100, msec);
-  boomerang(-60, -20, -1, 0, 0.3, true, 10);
+  stick.spin(fwd, 20, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(800, msec);
+  thread([]{reset();});
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.25);
+  resetPositionLeft(leftSide, 6.375, 0, 70.25);
+  correct_angle = 3;
+  driveTo(26, 2000, true, 10);
+  gate.set(true);
+  driveToWall(6.5, 1000, 250, true, 12);
+  driveToWall(10.5, 500, 0, true, 12);
+  driveToWall(6.5, 1000, 500, true, 12);
+  moveToPrevPos();
+  gate.set(false);
+  stick.spin(fwd, 20, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(1100, msec);
+  thread([]{reset();});
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
   scraper.set(false);
-  
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.25);
+  resetPositionLeft(leftSide, 6.375, 0, 70.25);
+  boomerang(-16, 69, 1, 90, 0.3, 1200, true, 10);
+  mid_goal.set(false);
+  stick.spin(fwd, 100, percent);
+  wait(100, msec);
+  turnToAngle(90, 800);
+  thread([]{reset();});
+  wait(100, msec);
+  gate.set(true);
+  driveChassis(8, 8);
+  scraper.set(true);
+  wait(600, msec);
+  scraper.set(false);
+  wait(400, msec);
+  driveChassis(0, 0);
+  wait(200, msec);
+  driveChassis(6, 6);
+  wait(1000, msec);
+  driveToWallRight(30, 800, 0, true, 8);
+  driveToWallRight(42, 800, 0, true, 8);
+  swing(180, 1, 1500, true, 12);
+  turnToAngle(180, 300);
+  wait(50, msec);
+  resetPositionBack(backSide, 0, 9, 70.25);
+  resetPositionLeft(leftSide, 6.375, 0, 70.25);
+  wait(50, msec);
+  turnToAngle(215, 800);
+  wait(50, msec);
+  boomerang(19, 20, 1, 135, 0.3, 2000, true, 10);
+  wait(50, msec);
+  turnToAngle(45, 800);
+  wait(50, msec);
+  moveToPoint(3.5, 18.5, -1, 1200, true, 8);
+  wait(50, msec);
+  turnToAngle(45, 800);
+  gate.set(false);
+  wait(100, msec);
+  stick.spin(fwd, 20, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(1100, msec);
+  thread([]{reset();});
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  scraper.set(true);
+  thread([]{
+    stick.spin(fwd, 100, percent);
+    wait(600, msec);
+    reset();
+  });
+  boomerang(36, 59, 1, 0, 0.4, 1500, true, 10);
+  mid_goal.set(true);
+  gate.set(true);
+  driveToWall(6.5, 1000, 250, true, 12);
+  driveToWall(10.5, 500, 0, true, 12);
+  driveToWall(6.5, 1000, 500, true, 12);
+  driveTo(-4, 1000, true, 12);
+  wait(50, msec);
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.25);
+  resetPositionRight(rightSide, 6.375, 0, 70.25);
+  wait(50, msec);
+  boomerang(58, 20, -1, 0, 0.3, 1200, false, 11);
+  moveToPoint(57, -48, -1, 2200, true, 11);
+  wait(100, msec);
+  turnToAngle(270, 800);
+  wait(100, msec);
+  driveFromWall(15, 1200, 0, true, 12);
+  wait(100, msec);
+  turnToAngle(180, 800);
+  wait(100, msec);
+  driveToWall(34.75, 1000, 0, true, 12);
+  gate.set(false);
+  stick.spin(fwd, 20, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(800, msec);
+  thread([]{reset();});
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.25);
+  resetPositionLeft(leftSide, 6.375, 0, 70.25);
+  correct_angle = 183;
+  driveTo(26, 2000, true, 10);
+  gate.set(true);
+  driveToWall(6.5, 1000, 250, true, 12);
+  driveToWall(10.5, 500, 0, true, 12);
+  driveToWall(6.5, 1000, 500, true, 12);
+  turnToAngle(180, 500);  
+  moveToPrevPos();
+  gate.set(false);
+  stick.spin(fwd, 20, percent);
+  wait(600, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(800, msec);
+  scraper.set(false);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  resetPositionFront(Rwall_distance_sensor, 4.125, 5, 70.25);
+  resetPositionLeft(leftSide, 6.375, 0, 70.25);
+  driveTo(8, 1000, true, 10);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  mid_goal.set(false);
+  boomerang(12, -8, 1, -90, 0.4, 1600, true, 10);
+  driveFromWall(65, 5000, 0, true, 12);
 
 }
 
@@ -192,19 +305,24 @@ void elimleft(){
   boomerang(-38, -8, 1, 180, 0.2, 2000, true, 9);
   turnToAngle(180, 300);
   driveToWall(7.5, 900, 300, true, 12);
+  thread([]{
+    lower_intake.spin(fwd, -6, voltageUnits::volt);
+    wait(200, msec);
+    lower_intake.spin(fwd, 12, voltageUnits::volt);
+  });
   moveToPoint(-36.5, 15, -1, 1200, true, 10);
   gate.set(false);
   wait(50, msec);
-  thread s = thread(score);
+  stick.spin(fwd, 12, voltageUnits::volt);
   wait(600, msec);
   lower_intake.stop();
-  s.interrupt();
   scraper.set(false);
   driveTo(4, 1000, false, 12);
+  stick.spin(fwd, -1, voltageUnits::volt);
   turnToAngle(-90, 600);
   driveToWall(28.5, 800, 0, true, 12);
   turnToAngle(180, 600);
-  driveTo(-26, 10000, true, 12);
+  driveTo(-27, 10000, true, 12);
   left_chassis.setStopping(hold);
   right_chassis.setStopping(hold);
   lower_intake.spin(forward, 1, voltageUnits::volt);
@@ -214,29 +332,41 @@ void elimleft(){
 }
 
 void elimright(){
-  mid_goal.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   gate.set(true);
+  thread([]{
+    wait(500, msec);
+    mid_goal.set(true);
+  });
   boomerang(27, 26, 1, 90, 0.4, 1500, false, 10); 
   scraper.set(true);
   boomerang(55, -8, 1, 180, 0.2, 2000, true, 9);
   turnToAngle(180, 300);
-  driveToWall(7.5, 900, 300, true, 12);
-  moveToPoint(56, 16, -1, 1200, true, 10);
+  driveToWall(7, 900, 300, true, 12);
+  scraper.set(false);
+  thread([]{
+    lower_intake.spin(fwd, -6, voltageUnits::volt);
+    wait(200, msec);
+    lower_intake.spin(fwd, 6, voltageUnits::volt);
+  });
+  moveToPoint(55, 15.5, -1, 1200, true, 10);
   gate.set(false);
   wait(50, msec);
-  thread s = thread(score);
-  wait(600, msec);
+  //stick.spin(fwd, 12, voltageUnits::volt);
+  //wait(600, msec);
+  stick.spin(fwd, 70, percent);
+  wait(1200, msec);
   lower_intake.stop();
-  s.interrupt();
   scraper.set(false);
   driveTo(4, 1000, false, 12);
+  stick.spin(fwd, -1, voltageUnits::volt);
   turnToAngle(90, 600);
-  driveToWall(7.5, 800, 0, true, 12);
+  driveToWall(7, 800, 0, true, 12);
   turnToAngle(180, 600);
-  driveTo(-26, 10000, true, 12);
   left_chassis.setStopping(hold);
   right_chassis.setStopping(hold);
+  wait(1000, msec);
+  driveTo(-27, 10000, true, 11);//12
   lower_intake.spin(forward, 1, voltageUnits::volt);
   stick.spin(reverse, 12, voltageUnits::volt);
   lower_intake.stop();

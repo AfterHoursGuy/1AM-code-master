@@ -15,6 +15,7 @@ extern motor right_chassis2;
 extern motor right_chassis3;
 extern motor_group right_chassis;
 
+extern rotation stick_rotation;
 extern inertial inertial_sensor;
 extern optical block_counter_lower;
 extern optical block_counter_upper;

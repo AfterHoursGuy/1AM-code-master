@@ -26,6 +26,7 @@ motor right_chassis2 = motor(PORT3, ratio6_1, false);
 motor right_chassis3 = motor(PORT4, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
+rotation stick_rotation = rotation(PORT1);
 inertial inertial_sensor = inertial(PORT20);
 optical block_counter_lower = optical(PORT5);
 optical block_counter_upper = optical(PORT5);
@@ -105,7 +106,7 @@ double max_slew_decel_rev = 24;
 // Prevents too much slipping during boomerang movements
 // Decrease if there is too much drifting and inconsistency during boomerang
 // Increase for more speed during boomerang
-double chase_power = 2;
+double chase_power = 1.1;
 
 // ============================================================================
 // DO NOT CHANGE ANYTHING BELOW

@@ -4,7 +4,6 @@
 #include "pid.h"
 
 // Modify autonomous, driver, or pre-auton code below
-double starting_heading = 0; //change to autons starting heading
 
 void runAutonomous() {
   int auton_selected = 7; // change this to select different autonomous routines
@@ -257,6 +256,6 @@ void runPreAutonomous() {
     thread odom = thread(trackNoOdomWheel);
   }
 
-  thread([]{lights(255, 0, 175);});
+  thread([]{lights(0, 0, 0);});
 
 }

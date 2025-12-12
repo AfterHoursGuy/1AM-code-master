@@ -31,6 +31,7 @@ void trackYOdomWheel();
 void turnToPoint(double x, double y, int dir, double time_limit_msec);
 void moveToPoint(double x, double y, int dir, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
 void boomerang(double x, double y, int dir, double a, double dlead, double time_limit_msec, bool exit = true, double max_output = 12, bool overturn = false);
+void driveToWall2D(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output, vex::distance& sensor, double target_side_in);
 void driveToWall(double target_distance_in, double time_limit_msec, double hold_time, bool exit = true, double max_output = 12);
 void driveFromWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output = 12);
 void driveToWallRight(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output = 12);
@@ -45,3 +46,4 @@ void initializeFieldPosition(vex::distance& x_sensor, double x_sensor_offset_x, 
 void softarmPID(double arm_target);
 void fastarmPID(double arm_target);
 void lights(int _red, int _green, int _blue);
+void moveToPrevPos();
