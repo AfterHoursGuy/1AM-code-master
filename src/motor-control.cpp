@@ -1620,7 +1620,7 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
+void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 0.0, field_half_size);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
@@ -1637,7 +1637,7 @@ void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double se
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
+void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 180.0, field_half_size);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
@@ -1654,7 +1654,7 @@ void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sen
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
+void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 270.0, field_half_size);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
@@ -1671,7 +1671,7 @@ void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sen
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.7) {
+void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
     resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 90.0, field_half_size);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
