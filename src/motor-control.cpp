@@ -1719,6 +1719,10 @@ void initializeFieldPosition(vex::distance& x_sensor, double x_sensor_offset_x, 
     
 }
 
+void negatize_y() {
+  y_pos = -y_pos;
+}
+
 // Function to set LED brightness (0–255 → converted to percent)
 void lights(int _red, int _green, int _blue) {
   RED1.spin(fwd, _red / 2, pct);

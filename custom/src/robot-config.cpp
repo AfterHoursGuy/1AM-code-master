@@ -33,7 +33,7 @@ optical block_counter_upper = optical(PORT5);
 distance Rwall_distance_sensor = distance(PORT17);
 distance Lwall_distance_sensor = distance(PORT18);
 distance rightSide = distance(PORT19);
-distance leftSide = distance(PORT12);
+distance leftSide = distance(PORT11);
 distance backSide = distance(PORT13);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 

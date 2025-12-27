@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 6; // change this to select different autonomous routines
+  int auton_selected = 7; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -15,25 +15,25 @@ void runAutonomous() {
       exampleAuton2();
       break;  
     case 3:
-      leftsidequal(); //-90
+      leftsidequal(); 
       break;
     case 4:
-      rightsidequal(); //tbd
+      rightsidequal(); 
       break; 
     case 5:
-      sigsoloAWP(); //-90
+      sigsoloAWP(); 
       break;
     case 6:
-      qualsoloawp(); //tbd
+      qualsoloawp(); 
       break;
     case 7:
-      skills(); //tbd
+      skills(); 
       break;
     case 8:
-      elimleft(); //0
+      elimleft();
       break;
     case 9:
-      elimright(); //0
+      elimright();
       break;
   }
 }
@@ -161,15 +161,15 @@ void runDriver() {
       
     } else if (r2) {
       if (middleGoalState) {
+        thread([]{lower_intake.spin(fwd, 12, voltageUnits::volt);});
         gate.set(false);
     stick.spin(fwd, 20, percent);
       wait(600, msec);
   lower_intake.spin(fwd, -12, voltageUnits::volt);
   wait(1100, msec);
-  thread([]{stick.spin(fwd, -70, percent);
-    wait(500, msec);
-    stick.stop();
+  thread([]{fastarmPID(1);
     gate.set(true);
+    lower_intake.spin(fwd, 12, voltageUnits::volt);
   });
         /*gate.set(false);
         wait(50, msec);
@@ -180,15 +180,16 @@ void runDriver() {
           gate.set(true);*/
 
       } else {
+        lower_intake.spin(fwd, 12, voltageUnits::volt);
         gate.set(false);
     stick.spin(fwd, 20, percent);
       wait(600, msec);
   lower_intake.spin(fwd, -12, voltageUnits::volt);
   wait(1100, msec);
-  thread([]{stick.spin(fwd, -70, percent);
-    wait(500, msec);
-    stick.stop();
+  thread([]{fastarmPID(1);
+    
     gate.set(true);
+    lower_intake.spin(fwd, 12, voltageUnits::volt);
         });
       }
       

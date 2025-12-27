@@ -47,3 +47,4 @@ void softarmPID(double arm_target);
 void fastarmPID(double arm_target);
 void lights(int _red, int _green, int _blue);
 void moveToPrevPos();
+void negatize_y();
