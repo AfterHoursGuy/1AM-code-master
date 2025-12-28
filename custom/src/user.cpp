@@ -81,6 +81,7 @@ bool longPress = false;
 void runDriver() {
   stopChassis(coast);
   heading_correction = false;
+  gate.set(true); // close gate at start of driver control
 
   while (true) {
     // [-100, 100] for controller stick axis values
