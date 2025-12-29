@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 8; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
