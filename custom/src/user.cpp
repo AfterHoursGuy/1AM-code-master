@@ -79,6 +79,8 @@ bool longPress = false;
 
 
 void runDriver() {
+  //runAutonomous();
+
   stopChassis(coast);
   heading_correction = false;
   gate.set(true); // close gate at start of driver control
