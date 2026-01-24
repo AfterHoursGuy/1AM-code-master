@@ -175,19 +175,19 @@ Discarded input sections
  .ARM.exidx.text._Z11qualsoloawpv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._Z13rightsidequalv
-                0x0000000000000000      0x780 build/custom/src/autonomous.o
+                0x0000000000000000      0x568 build/custom/src/autonomous.o
  .ARM.exidx.text._Z13rightsidequalv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._Z12leftsidequalv
-                0x0000000000000000        0x4 build/custom/src/autonomous.o
+                0x0000000000000000      0x6d8 build/custom/src/autonomous.o
  .ARM.exidx.text._Z12leftsidequalv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._Z8elimleftv
-                0x0000000000000000      0x4d0 build/custom/src/autonomous.o
+                0x0000000000000000      0x4c0 build/custom/src/autonomous.o
  .ARM.exidx.text._Z8elimleftv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._Z9elimrightv
-                0x0000000000000000      0x580 build/custom/src/autonomous.o
+                0x0000000000000000      0x588 build/custom/src/autonomous.o
  .ARM.exidx.text._Z9elimrightv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._ZZ10sigsoloAWPvEN3$_08__invokeEv
@@ -214,35 +214,43 @@ Discarded input sections
                 0x0000000000000000        0x4 build/custom/src/autonomous.o
  .ARM.exidx.text._ZZ13rightsidequalvEN3$_58__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ13rightsidequalvEN3$_68__invokeEv
-                0x0000000000000000       0x40 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ13rightsidequalvEN3$_68__invokeEv
+ .text._ZZ12leftsidequalvEN3$_68__invokeEv
+                0x0000000000000000       0x68 build/custom/src/autonomous.o
+ .ARM.exidx.text._ZZ12leftsidequalvEN3$_68__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ13rightsidequalvEN3$_78__invokeEv
+ .text._ZZ12leftsidequalvEN3$_78__invokeEv
                 0x0000000000000000        0x4 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ13rightsidequalvEN3$_78__invokeEv
+ .ARM.exidx.text._ZZ12leftsidequalvEN3$_78__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ8elimleftvEN4$_168__invokeEv
-                0x0000000000000000       0x80 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ8elimleftvEN4$_168__invokeEv
-                0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ8elimleftvEN4$_178__invokeEv
+ .text._ZZ12leftsidequalvEN3$_88__invokeEv
                 0x0000000000000000        0x4 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ8elimleftvEN4$_178__invokeEv
+ .ARM.exidx.text._ZZ12leftsidequalvEN3$_88__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ9elimrightvEN4$_188__invokeEv
-                0x0000000000000000       0x40 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ9elimrightvEN4$_188__invokeEv
+ .text._ZZ12leftsidequalvEN3$_98__invokeEv
+                0x0000000000000000       0x60 build/custom/src/autonomous.o
+ .ARM.exidx.text._ZZ12leftsidequalvEN3$_98__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .text._ZZ9elimrightvEN4$_198__invokeEv
+ .text._ZZ8elimleftvEN4$_188__invokeEv
                 0x0000000000000000       0x80 build/custom/src/autonomous.o
- .ARM.exidx.text._ZZ9elimrightvEN4$_198__invokeEv
+ .ARM.exidx.text._ZZ8elimleftvEN4$_188__invokeEv
+                0x0000000000000000        0x8 build/custom/src/autonomous.o
+ .text._ZZ8elimleftvEN4$_198__invokeEv
+                0x0000000000000000        0x4 build/custom/src/autonomous.o
+ .ARM.exidx.text._ZZ8elimleftvEN4$_198__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
  .text._ZZ9elimrightvEN4$_208__invokeEv
-                0x0000000000000000        0x4 build/custom/src/autonomous.o
+                0x0000000000000000       0x40 build/custom/src/autonomous.o
  .ARM.exidx.text._ZZ9elimrightvEN4$_208__invokeEv
                 0x0000000000000000        0x8 build/custom/src/autonomous.o
- .llvm_addrsig  0x0000000000000000       0x31 build/custom/src/autonomous.o
+ .text._ZZ9elimrightvEN4$_218__invokeEv
+                0x0000000000000000       0x80 build/custom/src/autonomous.o
+ .ARM.exidx.text._ZZ9elimrightvEN4$_218__invokeEv
+                0x0000000000000000        0x8 build/custom/src/autonomous.o
+ .text._ZZ9elimrightvEN4$_228__invokeEv
+                0x0000000000000000        0x4 build/custom/src/autonomous.o
+ .ARM.exidx.text._ZZ9elimrightvEN4$_228__invokeEv
+                0x0000000000000000        0x8 build/custom/src/autonomous.o
+ .llvm_addrsig  0x0000000000000000       0x35 build/custom/src/autonomous.o
  .text          0x0000000000000000        0x0 build/custom/src/robot-config.o
  .group         0x0000000000000000       0x14 build/custom/src/robot-config.o
  .data.RemoteControlCodeEnabled
@@ -3354,22 +3362,22 @@ Linker script and memory map
  .text._Z6skillsv
                 0x0000000003804fb8     0x1cb8 build/custom/src/autonomous.o
                 0x0000000003804fb8                skills()
- .text._ZZ6skillsvEN3$_88__invokeEv
-                0x0000000003806c70        0x4 build/custom/src/autonomous.o
- .text._ZZ6skillsvEN3$_98__invokeEv
-                0x0000000003806c74        0x4 build/custom/src/autonomous.o
  .text._ZZ6skillsvEN4$_108__invokeEv
-                0x0000000003806c78        0x4 build/custom/src/autonomous.o
+                0x0000000003806c70        0x4 build/custom/src/autonomous.o
  .text._ZZ6skillsvEN4$_118__invokeEv
-                0x0000000003806c7c        0x4 build/custom/src/autonomous.o
+                0x0000000003806c74        0x4 build/custom/src/autonomous.o
  .text._ZZ6skillsvEN4$_128__invokeEv
-                0x0000000003806c80        0x4 build/custom/src/autonomous.o
+                0x0000000003806c78        0x4 build/custom/src/autonomous.o
  .text._ZZ6skillsvEN4$_138__invokeEv
-                0x0000000003806c84        0x4 build/custom/src/autonomous.o
+                0x0000000003806c7c        0x4 build/custom/src/autonomous.o
  .text._ZZ6skillsvEN4$_148__invokeEv
+                0x0000000003806c80        0x4 build/custom/src/autonomous.o
+ .text._ZZ6skillsvEN4$_158__invokeEv
+                0x0000000003806c84        0x4 build/custom/src/autonomous.o
+ .text._ZZ6skillsvEN4$_168__invokeEv
                 0x0000000003806c88        0x4 build/custom/src/autonomous.o
  *fill*         0x0000000003806c8c        0x4 
- .text._ZZ6skillsvEN4$_158__invokeEv
+ .text._ZZ6skillsvEN4$_178__invokeEv
                 0x0000000003806c90       0x40 build/custom/src/autonomous.o
  .text._GLOBAL__sub_I_autonomous.cpp
                 0x0000000003806cd0       0x34 build/custom/src/autonomous.o
@@ -4713,12 +4721,6 @@ Linker script and memory map
  .ARM.exidx.text._Z6skillsv
                 0x000000000380b948        0x0 build/custom/src/autonomous.o
                                           0x8 (size before relaxing)
- .ARM.exidx.text._ZZ6skillsvEN3$_88__invokeEv
-                0x000000000380b948        0x0 build/custom/src/autonomous.o
-                                          0x8 (size before relaxing)
- .ARM.exidx.text._ZZ6skillsvEN3$_98__invokeEv
-                0x000000000380b948        0x0 build/custom/src/autonomous.o
-                                          0x8 (size before relaxing)
  .ARM.exidx.text._ZZ6skillsvEN4$_108__invokeEv
                 0x000000000380b948        0x0 build/custom/src/autonomous.o
                                           0x8 (size before relaxing)
@@ -4735,6 +4737,12 @@ Linker script and memory map
                 0x000000000380b948        0x0 build/custom/src/autonomous.o
                                           0x8 (size before relaxing)
  .ARM.exidx.text._ZZ6skillsvEN4$_158__invokeEv
+                0x000000000380b948        0x0 build/custom/src/autonomous.o
+                                          0x8 (size before relaxing)
+ .ARM.exidx.text._ZZ6skillsvEN4$_168__invokeEv
+                0x000000000380b948        0x0 build/custom/src/autonomous.o
+                                          0x8 (size before relaxing)
+ .ARM.exidx.text._ZZ6skillsvEN4$_178__invokeEv
                 0x000000000380b948        0x0 build/custom/src/autonomous.o
                                           0x8 (size before relaxing)
  .ARM.exidx.text._GLOBAL__sub_I_autonomous.cpp

@@ -65,7 +65,7 @@ void sigsoloAWP(){
   driveToWall(6.5, 1000, 0, true, 12);
   resetPositionFront(Rwall_distance_sensor, 4.25, 5, 70.25);
   resetPositionLeft(leftSide, 6.375, 0, 70.25);
-  moveToPoint(46.75, -29, -1, 1300, true, 10);
+  moveToPoint(46, -29, -1, 1300, true, 10);
   gate.set(false);
   stick.spin(fwd, 40, percent);
   wait(900, msec);
@@ -119,7 +119,7 @@ void sigsoloAWP(){
   resetPositionFront(Rwall_distance_sensor, 4.25, 5, 70.25);
   resetPositionRight(rightSide, 6.375, 0, 70.25);
   wait(50, msec);
-  moveToPoint(-46.5, -29, -1, 1800, false, 12);
+  moveToPoint(-45.25, -29, -1, 1800, false, 12);
   gate.set(false);
   stick.spin(fwd, 100, percent);
   wait(600, msec);
@@ -169,11 +169,11 @@ void rightsidequal(){
   moveToPoint(23, -22, 1, 1000, false, 11);
 
   //low goal
-  /*driveTo(16, 1300, true, 9);
-  lower_intake.spin(fwd, -12, voltageUnits::volt);*/
+  driveTo(16, 1300, true, 9);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
 
   //upper goal
-  thread([]{doinker(800);});
+  /*thread([]{doinker(800);});
   moveToPoint(-26, -22, 1, 2000, true, 11);
   wait(50, msec);
   resetPositionFront(Lwall_distance_sensor, 5, 4.25, 70.25);
@@ -191,12 +191,63 @@ void rightsidequal(){
   lower_intake.spin(fwd, -12, voltageUnits::volt);
   wait(100, msec);
   thread([]{reset();});
-  gate.set(true);
+  gate.set(true);*/
   
 }
 
 void leftsidequal(){
+  gate.set(true);
+  lower_intake.spin(fwd, 12, voltageUnits::volt);
+  thread([]{
+    doinker(400);
+    doinkerup(200);
+  });
+  moveToPoint(-18, 37, 1, 1600, false, 12);
+  swing(-90, 1, 600, true, 12);
+  scraper.set(true);
+  swing(-30, -1, 700, false, 12);
+  boomerang(-20, 12, -1, 200, 0.2, 2000, true, 12);
+  turnToAngle(20, 800, false);
+  mid_goal.set(true);
+  swing(90, -1, 1000, false, 12);
+  swing(180, -1, 600, true, 12);
+  driveToWall(35, 800, 0, true, 12);
+  gate.set(false);
+  stick.spin(fwd, 12, voltageUnits::volt);
+  wait(500, msec);
+  gate.set(true);
+  thread([]{reset();});
+  resetPositionFront(Rwall_distance_sensor, 4.25, 5, 70.25);
+  resetPositionRight(rightSide, 6.375, 0, 70.25);
+  wait(50, msec);
+  boomerang(-46, -60, 1, 180, 0.1, 1300, true, 12);
+  driveToWall(6.5, 700, 0, true, 12);
+  resetPositionFront(Rwall_distance_sensor, 4.25, 5, 70.25);
+  resetPositionRight(rightSide, 6.375, 0, 70.25);
+  mid_goal.set(false);
+  moveToPoint(-14.5, -15, -1, 1300, true, 12);
+  turnToAngle(225, 300);
+  gate.set(false);
+  stick.spin(fwd, 50, percent);
+  wait(500, msec);
+  lower_intake.spin(fwd, -12, voltageUnits::volt);
+  wait(100, msec);
+  thread([]{reset();});
+  gate.set(true);
+  mid_goal.set(true);
+  thread([]{
+    wait(250, msec);
+    lower_intake.spin(fwd, 12, voltageUnits::volt);
+  });
+  boomerang(-37, -38, 1, 180, 0.4, 2800, true, 12);
+  turnToAngle(180, 200);
+  left_chassis.setStopping(hold);
+  right_chassis.setStopping(hold);
+  correct_angle = 180;
+  driveTo(-24, 50000, true, 12);
   
+
+
 }
 
 void skills() { 
@@ -284,11 +335,11 @@ void skills() {
   scraper.set(true);
   wait(300, msec);
   scraper.set(false);
-  wait(750, msec);
+  wait(650, msec);
   driveChassis(0, 0);
   wait(200, msec);
   driveChassis(7, 7.25);
-  wait(1000, msec);
+  wait(1100, msec);
   driveToWallRight(28.5, 800, 0, true, 8);
   driveToWallRight(42, 700, 0, true, 8);
   swing(180, 1, 1500, true, 12);
@@ -400,7 +451,7 @@ void elimleft(){
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   gate.set(true);
   boomerang(-20, 18, 1, -90, 0.4, 1500, false, 10); 
-  scraper.set(true);
+  //scraper.set(true);
   boomerang(-38, -8, 1, 180, 0.2, 2000, true, 9);
   turnToAngle(180, 300);
   driveToWall(7.5, 900, 300, true, 12);
@@ -456,7 +507,7 @@ void elimright(){
   });
   resetPositionFront(Rwall_distance_sensor, 4.25, 5, 70.25);
   resetPositionLeft(leftSide, 6.375, 0, 70.25);
-  moveToPoint(46.75, -29, -1, 1300, true, 10);
+  moveToPoint(46, -29, -1, 1300, true, 10);
   driveToWall(34, 200, 0, true, 12);
   gate.set(false);
   stick.spin(fwd, 40, percent);
@@ -471,12 +522,12 @@ void elimright(){
   driveTo(4, 1000, false, 12);
   stick.spin(fwd, -1, voltageUnits::volt);
   turnToAngle(90, 600);
-  driveToWall(6.75, 700, 0, true, 12);
+  driveToWall(7.5, 700, 0, true, 12);
   turnToAngle(180, 600);
   left_chassis.setStopping(hold);
   right_chassis.setStopping(hold);
   wait(1, msec);
-  driveTo(-27, 10000, true, 12);//12
+  driveTo(-27, 10000, true, 7);//12
   lower_intake.spin(forward, 1, voltageUnits::volt);
   stick.spin(reverse, 12, voltageUnits::volt);
   lower_intake.stop();
