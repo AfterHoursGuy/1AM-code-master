@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 9; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -18,7 +18,7 @@ void runAutonomous() {
       leftsidequal(); 
       break;
     case 4:
-      rightsidequal(); // Set for upper mid rn
+      rightsidequal(); 
       break; 
     case 5:
       sigsoloAWP(); 
@@ -33,20 +33,12 @@ void runAutonomous() {
       elimleft();
       break;
     case 9:
-      elimright();
+      elimright(); // 7 Ball Active
       break;
   }
 }
 
 bool intaken = false;
-
-void intaker() {
-  intaken = true;
-  lower_intake.spin(forward, 12, voltageUnits::volt);
-  wait(500, msec);
-  lower_intake.stop(coast);
-  intaken = false;
-}
 
 
 // Slight exponential scaling for joystick input
@@ -83,7 +75,8 @@ void runDriver() {
 
   stopChassis(coast);
   heading_correction = false;
-  gate.set(true); // close gate at start of driver control
+  intake_lift.set(true);
+  descore.set(true);
 
   while (true) {
     // [-100, 100] for controller stick axis values
@@ -138,59 +131,38 @@ void runDriver() {
     // Apply motor behavior
     if (longPress && btn) {
         // reverse while holding long press
-        lower_intake.spin(reverse, 12, voltageUnits::volt);
+        intake_lift.set(false);
+        lower_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
+        upper_intake.spin(reverse, 12, voltageUnits::volt);
     }
     else if (intakeToggle) {
         // normal toggle state
+        mid_goal.set(false);
+        wings.set(true);
+        intake_lift.set(true);
         lower_intake.spin(forward, 12, voltageUnits::volt);
+        upper_intake.spin(forward, 12, voltageUnits::volt);
+    } else if (r1) {
+        wings.set(false);
+        mid_goal.set(false);
+        lower_intake.spin(forward, 12, voltageUnits::volt);
+        upper_intake.spin(forward, 12, voltageUnits::volt);
+    } else if (r2) {
+        wings.set(false);
+        mid_goal.set(true);
+        lower_intake.spin(forward, 12, voltageUnits::volt);
+        upper_intake.spin(forward, 100, pct); //CHANGE FOR SKILLS 50 Percent
     }
-    else if (!intaken) {
+    else if (!intaken && !r1 && !r2) {  
+        mid_goal.set(false);
+        intake_lift.set(true);
         lower_intake.stop(coast);
+        upper_intake.stop(coast);
     }
+
 
     btnPrev = btn;
-
-    // Intake & hood control with middle goal condition
-    if (r1) {
-      gate.set(false);
-      wait(50, msec);
-      thread([]{intaker();});
-      thread([]{
-        fastarmPID(135);
-        fastarmPID(1);
-        gate.set(true);
-      });
-      
-    } else if (r2) {
-      if (middleGoalState) {
-        thread([]{lower_intake.spin(fwd, 12, voltageUnits::volt);});
-        gate.set(false);
-        stick.spin(fwd, 20, percent);
-        wait(600, msec);
-        lower_intake.spin(fwd, -12, voltageUnits::volt);
-        wait(1100, msec);
-        thread([]{fastarmPID(1);
-          gate.set(true);
-          lower_intake.spin(fwd, 12, voltageUnits::volt);
-          });
-
-      } else {
-        lower_intake.spin(fwd, 12, voltageUnits::volt);
-        gate.set(false);
-        stick.spin(fwd, 20, percent);
-        wait(600, msec);
-        lower_intake.spin(fwd, -12, voltageUnits::volt);
-        wait(1100, msec);
-        thread([]{fastarmPID(1);
-          gate.set(true);
-          lower_intake.spin(fwd, 12, voltageUnits::volt);
-          });
-      }
-      
-    } else {
-      stick.stop(hold);
-      
-    }
+    
 
     // Scraper toggle on L2
     static bool l2Prev = false;
@@ -200,19 +172,11 @@ void runDriver() {
     }
     l2Prev = l2;
 
-    // Park toggle on A
-    static bool aPrev = false;
-    if (button_a && !aPrev) {
-      parkPistonState = !parkPistonState;
-      park.set(parkPistonState);
-    }
-    aPrev = button_a;
-
     // Right arrow toggle for Middle goal
     static bool rightPrev = false;
     if (button_right_arrow && !rightPrev) {
     middleGoalState = !middleGoalState;
-    mid_goal.set(middleGoalState);
+    descore.set(middleGoalState);
     }
     rightPrev = button_right_arrow;
 

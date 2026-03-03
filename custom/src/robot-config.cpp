@@ -17,42 +17,41 @@ controller controller_1 = controller(primary);
 // all chassis motors should be reversed appropriately so that they spin vertical when given a positive voltage input
 // such as driveChassis(12, 12)
 
-motor left_chassis1 = motor(PORT6, ratio6_1, true);
-motor left_chassis2 = motor(PORT7, ratio6_1, true);
-motor left_chassis3 = motor(PORT8, ratio6_1, true);
+motor left_chassis1 = motor(PORT11, ratio6_1, true);
+motor left_chassis2 = motor(PORT12, ratio6_1, true);
+motor left_chassis3 = motor(PORT13, ratio6_1, true);
 motor_group left_chassis = motor_group(left_chassis1, left_chassis2, left_chassis3);
-motor right_chassis1 = motor(PORT2, ratio6_1, false);
-motor right_chassis2 = motor(PORT3, ratio6_1, false);
-motor right_chassis3 = motor(PORT4, ratio6_1, false);
+motor right_chassis1 = motor(PORT19, ratio6_1, false);
+motor right_chassis2 = motor(PORT15, ratio6_1, false);
+motor right_chassis3 = motor(PORT16, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
 rotation stick_rotation = rotation(PORT1);
-inertial inertial_sensor = inertial(PORT20);
+inertial inertial_sensor = inertial(PORT6);
 optical block_counter_lower = optical(PORT5);
 optical block_counter_upper = optical(PORT5);
-distance Rwall_distance_sensor = distance(PORT12);
-distance Lwall_distance_sensor = distance(PORT17);
-distance rightSide = distance(PORT19);
-distance leftSide = distance(PORT11);
-distance backSide = distance(PORT13);
+distance frontsensor = distance(PORT10);
+distance rightSide = distance(PORT8);
+distance leftSide = distance(PORT9);
+distance backSide = distance(PORT20);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
 // Format is rotation(port, reversed)
 // just set these to random ports if you don't use tracking wheels
-rotation horizontal_tracker = rotation(PORT5, true);
-rotation vertical_tracker = rotation(PORT5, true);
+rotation horizontal_tracker = rotation(PORT1, true);
+rotation vertical_tracker = rotation(PORT1, true);
 
 // other devices
-motor lower_intake = motor(PORT14, ratio6_1, false);
-motor stick = motor(PORT16, ratio36_1, true);
-digital_out scraper = digital_out(Brain.ThreeWirePort.A);
+motor lower_intake = motor(PORT18, ratio6_1, false);
+motor upper_intake = motor(PORT17, ratio6_1, true);
+digital_out scraper = digital_out(Brain.ThreeWirePort.E);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
-digital_out park = digital_out(Brain.ThreeWirePort.C);
-digital_out wings = digital_out(Brain.ThreeWirePort.D);
-digital_out gate = digital_out(Brain.ThreeWirePort.E);
-motor29 RED1 = motor29(Brain.ThreeWirePort.F);
+digital_out descore = digital_out(Brain.ThreeWirePort.F);
+digital_out wings = digital_out(Brain.ThreeWirePort.C);
+digital_out intake_lift = digital_out(Brain.ThreeWirePort.H);
+motor29 RED1 = motor29(Brain.ThreeWirePort.G);
 motor29 BLUE1 = motor29(Brain.ThreeWirePort.G);
-motor29 GREEN1 = motor29(Brain.ThreeWirePort.H);
+motor29 GREEN1 = motor29(Brain.ThreeWirePort.G);
 
 // ============================================================================
 // USER-CONFIGURABLE PARAMETERS (CHANGE BEFORE USING THIS TEMPLATE)

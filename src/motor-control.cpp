@@ -15,8 +15,8 @@ double prev_left_output = 0, prev_right_output = 0;
 double x_pos = 0, y_pos = 0;
 double correct_angle = 0;
 // Field configuration
-double field_half_width = 70.25;  // Half field width (default 72" for 12ft field)
-double field_half_length = 70.25; // Half field length (default 72" for 12ft field)
+double field_half_width = 72.0;  // Half field width (default 72" for 12ft field)
+double field_half_length = 72.0; // Half field length (default 72" for 12ft field)
 double prevposx;
 double prevposy;
 
@@ -1278,66 +1278,6 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
   is_turning = false;     // Reset turning state
 }
 
-void driveToWall2D(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output, vex::distance& sensor, double target_side_in) {
-  //Reset and prepare
-  stopChassis(vex::brakeType::hold);
-  is_turning = true;
-
-  double correction_kp = 0.2;
-  double correction_ki = 0.0;
-  double correction_kd = 0.0;
-
-  // PID for left and right wall distances
-  PID pid_left(distance_kp, distance_ki, distance_kd);
-  PID pid_right(distance_kp, distance_ki, distance_kd);
-  PID pid_side(correction_kp, correction_ki, correction_kd);
-
-  pid_left.setTarget(target_in);
-  pid_right.setTarget(target_in);
-  pid_side.setTarget(target_side_in);
-
-  pid_left.setIntegralMax(2);
-  pid_right.setIntegralMax(2);
-  pid_side.setIntegralMax(2);
-
-  pid_left.setSmallBigErrorTolerance(0.3, 1.0);
-  pid_right.setSmallBigErrorTolerance(0.3, 1.0);
-  pid_side.setSmallBigErrorTolerance(0.3, 1.0);
-
-  pid_left.setSmallBigErrorDuration(75, 200);
-  pid_right.setSmallBigErrorDuration(75, 200);
-  pid_side.setSmallBigErrorDuration(75, 200);
-
-  double left_output = 0, right_output = 0, turn = 0;
-  double start_time = Brain.timer(msec);
-
-  // Main loop: move each side until both sensors are within tolerance
-  while ((!pid_left.targetArrived() || !pid_right.targetArrived() || !pid_side.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
-    double left_dist = Lwall_distance_sensor.objectDistance(inches);
-    double right_dist = Rwall_distance_sensor.objectDistance(inches);
-    double side_dist = (sensor.objectDistance(inches));
-
-    // PID updates (positive output = forward)
-    turn = pid_side.update(side_dist);
-    left_output = pid_left.update(left_dist) + turn;
-    right_output = pid_right.update(right_dist) - turn;
-    
-
-    // Scale outputs and limit acceleration
-    scaleToMax(left_output, right_output, max_output);
-
-    // Drive
-    driveChassis(-left_output, -right_output);
-    wait(20, msec);
-  }
-
-  // Stop and hold for specified time
-  stopChassis(vex::hold);
-  wait(hold_time, msec);
-  is_turning = false;
-
-}
-
   void driveToWall(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
   //Reset and prepare
   stopChassis(vex::brakeType::hold);
@@ -1364,8 +1304,8 @@ void driveToWall2D(double target_in, double time_limit_msec, double hold_time, b
 
   // Main loop: move each side until both sensors are within tolerance
   while ((!pid_left.targetArrived() || !pid_right.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
-    double left_dist = Lwall_distance_sensor.objectDistance(inches);
-    double right_dist = Rwall_distance_sensor.objectDistance(inches);
+    double left_dist = frontsensor.objectDistance(inches);
+    double right_dist = frontsensor.objectDistance(inches);
 
     // PID updates (positive output = forward)
     left_output = pid_left.update(left_dist);
@@ -1425,84 +1365,6 @@ void driveFromWall(double target_in, double time_limit_msec, double hold_time, b
   wait(hold_time, msec);
   is_turning = false;
 
-}
-
-void driveToWallRight(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
-  //Reset and prepare
-  stopChassis(vex::brakeType::hold);
-  is_turning = true;
-
-  // PID for left and right wall distances
-  PID pid_fr(distance_kp, distance_ki, distance_kd);
-  
-  pid_fr.setTarget(target_in);
-
-  pid_fr.setIntegralMax(2);
-  
-  pid_fr.setSmallBigErrorTolerance(0.3, 1.0);
-  
-  pid_fr.setSmallBigErrorDuration(75, 200);
-  
-  double fr_output = 0;
-  double start_time = Brain.timer(msec);
-
-  // Main loop: move each side until both sensors are within tolerance
-  while ((!pid_fr.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
-    double fr_dist = Rwall_distance_sensor.objectDistance(inches);
-    
-    // PID updates (positive output = forward)
-    fr_output = pid_fr.update(fr_dist);
-
-    // Scale outputs and limit acceleration
-    scaleToMax(fr_output, fr_output, max_output);
-
-    // Drive
-    driveChassis(-fr_output, -fr_output);
-    wait(20, msec);
-  }
-
-  // Stop and hold for specified time
-  stopChassis(vex::hold);
-  wait(hold_time, msec);
-  is_turning = false;
-
-}
-
-
-void softarmPID(double arm_target) {
-  PID pidarm = PID(0.1, 0, 0.4); // Initialize PID controller for arm
-  pidarm.setTarget(arm_target);   // Set target position
-  pidarm.setIntegralMax(0);  
-  pidarm.setIntegralRange(1);
-  pidarm.setSmallBigErrorTolerance(3, 3);
-  pidarm.setSmallBigErrorDuration(0, 0);
-  pidarm.setDerivativeTolerance(100);
-  pidarm.setArrive(true);
-
-  while(true) {
-    stick.spin(fwd, pidarm.update(stick.position(deg)), volt); // Apply PID output to arm motor
-    if (pidarm.targetArrived())
-      break;
-  }
-  
-}
-
-void fastarmPID(double arm_target) {
-  PID pidarmfast = PID(20, 0, 0); // Initialize PID controller for arm
-  pidarmfast.setTarget(arm_target);   // Set target position
-  pidarmfast.setIntegralMax(0);  
-  pidarmfast.setIntegralRange(1);
-  pidarmfast.setSmallBigErrorTolerance(2, 2);
-  pidarmfast.setSmallBigErrorDuration(0, 0);
-  pidarmfast.setDerivativeTolerance(100);
-  pidarmfast.setArrive(true);
-
-  while(true) {
-    stick.spin(fwd, pidarmfast.update(stick.position(deg)), volt); // Apply PID output to arm motor
-    if (pidarmfast.targetArrived())
-      break;
-  }
-  
 }
 
 // ============================================================================
