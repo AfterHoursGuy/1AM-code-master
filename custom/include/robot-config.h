@@ -19,6 +19,7 @@ extern rotation stick_rotation;
 extern inertial inertial_sensor;
 extern optical block_counter_lower;
 extern optical block_counter_upper;
+extern distance rightfront;
 extern distance frontsensor;
 extern distance rightSide;
 extern distance leftSide;

@@ -1304,7 +1304,7 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
 
   // Main loop: move each side until both sensors are within tolerance
   while ((!pid_left.targetArrived() || !pid_right.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
-    double left_dist = frontsensor.objectDistance(inches);
+    double left_dist = rightfront.objectDistance(inches);
     double right_dist = frontsensor.objectDistance(inches);
 
     // PID updates (positive output = forward)
@@ -1316,6 +1316,48 @@ void boomerang(double x, double y, int dir, double a, double dlead, double time_
 
     // Drive
     driveChassis(-left_output, -right_output);
+    wait(20, msec);
+  }
+
+  // Stop and hold for specified time
+  stopChassis(vex::hold);
+  wait(hold_time, msec);
+  is_turning = false;
+
+}
+
+void driveToWallRight(double target_in, double time_limit_msec, double hold_time, bool exit, double max_output) {
+  //Reset and prepare
+  stopChassis(vex::brakeType::hold);
+  is_turning = true;
+
+  // PID for left and right wall distances
+  PID pid_r(distance_kp, distance_ki, distance_kd);
+
+  pid_r.setTarget(target_in);
+
+  pid_r.setIntegralMax(2);
+
+  pid_r.setSmallBigErrorTolerance(0.3, 1.0);
+
+  pid_r.setSmallBigErrorDuration(75, 200);
+
+  double rf_output = 0;
+  double start_time = Brain.timer(msec);
+
+  // Main loop: move each side until both sensors are within tolerance
+  while ((!pid_r.targetArrived()) && Brain.timer(msec) - start_time <= time_limit_msec && exit) {
+    double r_dist = rightfront.objectDistance(inches);
+
+    // PID updates (positive output = forward
+    // left_output = pid_left.update(left_dist);
+    rf_output = pid_r.update(r_dist);
+
+    // Scale outputs and limit acceleration
+    scaleToMax(rf_output, rf_output, max_output);
+
+    // Drive
+    driveChassis(-rf_output, -rf_output);
     wait(20, msec);
   }
 

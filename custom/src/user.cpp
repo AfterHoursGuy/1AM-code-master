@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 9; // change this to select different autonomous routines
+  int auton_selected = 7; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -30,7 +30,7 @@ void runAutonomous() {
       skills(); 
       break;
     case 8:
-      elimleft();
+      elimleft(); // 7 Ball Active
       break;
     case 9:
       elimright(); // 7 Ball Active
@@ -132,8 +132,8 @@ void runDriver() {
     if (longPress && btn) {
         // reverse while holding long press
         intake_lift.set(false);
-        lower_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
-        upper_intake.spin(reverse, 12, voltageUnits::volt);
+        lower_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 6.5 volts
+        upper_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
     }
     else if (intakeToggle) {
         // normal toggle state
@@ -148,9 +148,9 @@ void runDriver() {
         lower_intake.spin(forward, 12, voltageUnits::volt);
         upper_intake.spin(forward, 12, voltageUnits::volt);
     } else if (r2) {
-        wings.set(false);
+        wings.set(true);
         mid_goal.set(true);
-        lower_intake.spin(forward, 12, voltageUnits::volt);
+        lower_intake.spin(forward, 12, voltageUnits::volt); // CHANGE FOR SKILLS 10 volts
         upper_intake.spin(forward, 100, pct); //CHANGE FOR SKILLS 50 Percent
     }
     else if (!intaken && !r1 && !r2) {  
