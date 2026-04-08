@@ -106,6 +106,15 @@ void runDriver() {
     double rightPower = expoDrive(ch2, 1.4) * 0.12;  
     driveChassis(leftPower, rightPower);
 
+    if (button_b) {
+      resetPositionBack(180);
+
+    }
+
+    if (button_a) {
+      resetPositionRight(90);
+    }
+
     bool btn = controller_1.ButtonL1.pressing();
 
     // Button pressed this moment
@@ -132,8 +141,8 @@ void runDriver() {
     if (longPress && btn) {
         // reverse while holding long press
         intake_lift.set(false);
-        lower_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 6.5 volts
-        upper_intake.spin(reverse, 12, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
+        lower_intake.spin(reverse, 5, voltageUnits::volt); //CHANGE FOR SKILLS 5 volts
+        upper_intake.spin(reverse, 7, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
     }
     else if (intakeToggle) {
         // normal toggle state
@@ -150,8 +159,8 @@ void runDriver() {
     } else if (r2) {
         wings.set(true);
         mid_goal.set(true);
-        lower_intake.spin(forward, 12, voltageUnits::volt); // CHANGE FOR SKILLS 10 volts
-        upper_intake.spin(forward, 100, pct); //CHANGE FOR SKILLS 50 Percent
+        lower_intake.spin(forward, 9, voltageUnits::volt); // CHANGE FOR SKILLS 10 volts
+        upper_intake.spin(forward, 35, pct); //CHANGE FOR SKILLS 40 Percent
     }
     else if (!intaken && !r1 && !r2) {  
         mid_goal.set(false);

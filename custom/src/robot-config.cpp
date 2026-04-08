@@ -30,7 +30,7 @@ rotation stick_rotation = rotation(PORT1);
 inertial inertial_sensor = inertial(PORT5);
 optical block_counter_lower = optical(PORT5);
 optical block_counter_upper = optical(PORT5);
-distance rightfront = distance(PORT6);
+distance rightfront = distance(PORT4);
 distance frontsensor = distance(PORT10);
 distance rightSide = distance(PORT8);
 distance leftSide = distance(PORT9);
@@ -43,7 +43,7 @@ rotation horizontal_tracker = rotation(PORT1, true);
 rotation vertical_tracker = rotation(PORT1, true);
 
 // other devices
-motor lower_intake = motor(PORT18, ratio6_1, false);
+motor lower_intake = motor(PORT6, ratio6_1, false);
 motor upper_intake = motor(PORT17, ratio6_1, true);
 digital_out scraper = digital_out(Brain.ThreeWirePort.E);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
@@ -84,6 +84,15 @@ double horizontal_tracker_dist_from_center = 0.5;
 double vertical_tracker_dist_from_center = -0.03125;
 double horizontal_tracker_diameter = 1.975; // Diameter of the horizontal tracker wheel (in inches)
 double vertical_tracker_diameter = 1.975; // Diameter of the vertical tracker wheel (in inches)
+
+double leftsensor_offset_x = -3.375;
+double leftsensor_offset_y = -1;
+
+double rightsensor_offset_x = 3.375;
+double rightsensor_offset_y = -1;
+
+double backsensor_offset_x = -3.375;
+double backsensor_offset_y = 0.0;
 
 // ============================================================================
 // ADVANCED TUNING (OPTIONAL)

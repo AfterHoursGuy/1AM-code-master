@@ -53,6 +53,13 @@ extern double vertical_tracker_dist_from_center;
 extern double horizontal_tracker_diameter;
 extern double vertical_tracker_diameter;
 
+extern double backsensor_offset_x;
+extern double backsensor_offset_y;
+extern double leftsensor_offset_x;
+extern double leftsensor_offset_y;
+extern double rightsensor_offset_x;
+extern double rightsensor_offset_y;
+
 extern bool heading_correction;
 extern bool dir_change_start;
 extern bool dir_change_end;

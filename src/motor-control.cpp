@@ -14,9 +14,6 @@ bool is_turning = false;
 double prev_left_output = 0, prev_right_output = 0;
 double x_pos = 0, y_pos = 0;
 double correct_angle = 0;
-// Field configuration
-double field_half_width = 72.0;  // Half field width (default 72" for 12ft field)
-double field_half_length = 72.0; // Half field length (default 72" for 12ft field)
 double prevposx;
 double prevposy;
 
@@ -1413,6 +1410,86 @@ void driveFromWall(double target_in, double time_limit_msec, double hold_time, b
 // DISTANCE SENSOR POSITION RESET FUNCTIONS
 // ============================================================================
 
+void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double wall_angle, bool frontback = false) {
+    const int SAMPLES = 5;
+    double sumDist = 0;
+    int validCount = 0;
+    double field_half_size = 70.25;
+    double purple = 0; 
+    double green = 0; 
+
+    // 1. Collect Samples
+    for(int i = 0; i < SAMPLES; i++) {
+        double reading = sensor.objectDistance(inches);
+        
+        // Only count readings in a realistic range (e.g., 1 to 80 inches)
+        if (reading > 0.5 && reading < 110.0) {
+            sumDist += reading;
+            validCount++;
+        }
+        // Small delay to let the sensor's physical hardware refresh
+        vex::task::sleep(5); 
+    }
+
+    // 2. Safety Check: If we didn't get enough good data, abort the reset
+    if (validCount < (SAMPLES / 2)) {
+        Brain.Screen.print("Reset aborted: bad sensor readings");
+        return; 
+    }
+
+    double avgRawDist = sumDist / validCount;
+
+    // 3. Math from the reference image
+    double current_heading = getInertialHeading(); 
+    double thetaDeg = (current_heading + sensor_angle_offset) - wall_angle;
+    double thetaRad = degToRad(thetaDeg);
+    
+    // Applying the 3 equations
+    
+    double blue = std::cos(thetaRad) * avgRawDist;
+
+    if (frontback) {
+      // FRONT/BACK SENSOR LOGIC
+      // Depth is now Y, Lateral is X
+      purple = std::sin(thetaRad) * sensor_offset_x; 
+      green  = std::cos(thetaRad) * sensor_offset_y;
+    } else {
+      // SIDE SENSOR LOGIC
+      // Depth is now X, Lateral is Y
+      purple = std::cos(thetaRad) * sensor_offset_x;
+      green  = std::sin(thetaRad) * sensor_offset_y; // The -1 prevents rotation drift
+    }
+
+    double distToWall = blue + purple + green;
+
+    // 4. Update Position (Assuming (0,0) is center of field)
+    // Wall Angles: 0 (Top), 90 (Right), 180 (Bottom), 270 (Left)
+    if (wall_angle == 0) {
+        y_pos = (field_half_size) - distToWall;
+    } 
+    else if (wall_angle == 180) {
+        y_pos = -(field_half_size) + distToWall;
+    } 
+    else if (wall_angle == 90) {
+        x_pos = (field_half_size) - distToWall;
+    } 
+    else if (wall_angle == 270) {
+        x_pos = -(field_half_size) + distToWall;
+    }
+
+    // Update 'previous' values to prevent the odometry loop from overriding this change
+    prevposx = x_pos;
+    prevposy = y_pos;
+
+    // Feedback for the debug
+    Brain.Screen.clearLine(1);
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Pos Reset: %.2f in", distToWall);
+    Brain.Screen.clearLine(2);
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("Blue: %.2f, Purple: %.2f, Green: %.2f", blue, purple, green);
+}
+
 /*
  * resetPositionWithSensor
  * Resets position using a distance sensor based on which wall the robot is facing.
@@ -1430,7 +1507,7 @@ void driveFromWall(double target_in, double time_limit_msec, double hold_time, b
  2. set offsets corresponding to field coords at 0 heading
  3. 
  */
-void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double field_half_size) {
+/*void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double sensor_angle_offset, double field_half_size) {
     double sensorReading = sensor.objectDistance(inches);
   
     // Check for invalid reading (distance sensors return -1 or very large values when no object detected)
@@ -1512,7 +1589,7 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
         wait(10, msec);
         actualPos = 0;
     }
-}
+}*/
 
 /*
  * resetPositionFront
@@ -1524,8 +1601,9 @@ void resetPositionWithSensor(vex::distance& sensor, double sensor_offset_x, doub
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
-    resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 0.0, field_half_size);
+
+void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double wallangle) {
+    resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 0.0, wallangle, true);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
@@ -1541,8 +1619,9 @@ void resetPositionFront(vex::distance& sensor, double sensor_offset_x, double se
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
-    resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 180.0, field_half_size);
+
+void resetPositionBack(double wallangle) {
+    resetPositionWithSensor(backSide, backsensor_offset_x, backsensor_offset_y, 180.0, wallangle, true);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
@@ -1558,8 +1637,9 @@ void resetPositionBack(vex::distance& sensor, double sensor_offset_x, double sen
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
-    resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 270.0, field_half_size);
+
+void resetPositionLeft(double wallangle) {
+    resetPositionWithSensor(leftSide, leftsensor_offset_x, leftsensor_offset_y, 270.0, wallangle, false);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
@@ -1575,53 +1655,133 @@ void resetPositionLeft(vex::distance& sensor, double sensor_offset_x, double sen
  * - sensor_offset_y: Vertical offset of sensor from robot center (positive = forward, in inches)
  * - field_half_size: Half the field dimension (distance from center to wall, in inches)
  */
-void resetPositionRight(vex::distance& sensor, double sensor_offset_x, double sensor_offset_y, double field_half_size = 70.25) {
-    resetPositionWithSensor(sensor, sensor_offset_x, sensor_offset_y, 90.0, field_half_size);
+
+void resetPositionRight(double wallangle) {
+    resetPositionWithSensor(rightSide, rightsensor_offset_x, rightsensor_offset_y, 90.0, wallangle, false);
     Brain.Screen.setCursor(9, 1);
     Brain.Screen.clearLine();
     Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
 }
 
-/*
- * setFieldDimensions
- * Sets the field dimensions for position calculations.
- * 
- * - half_width: Half the field width (distance from center to left/right walls, in inches)
- * - half_length: Half the field length (distance from center to front/back walls, in inches)
- */
-void setFieldDimensions(double half_width, double half_length) {
-    field_half_width = half_width;
-    field_half_length = half_length;
+double roundToNearest90(double angle) {
+    // 1. Divide by 90 to get "how many 90s" are in the angle
+    // 2. Round to the nearest whole number
+    // 3. Multiply by 90 to get the snapped angle
+    double snapped = std::round(angle / 90.0) * 90.0;
+
+    // 4. Optional: Normalize the angle so 360 becomes 0
+    // This keeps your heading within a 0-359.9 range
+    snapped = fmod(snapped, 360.0);
+    if (snapped < 0) snapped += 360.0;
+
+    return snapped;
 }
 
-/*
- * initializeFieldPosition
- * Initializes the robot's position on the field using distance sensors.
- * This should be called at the start of auton to set the actual starting position.
- * Uses two sensors (one for X, one for Y) to determine absolute position.
- * 
- * - x_sensor: Sensor to use for X position (e.g., rightSide or leftSide)
- * - x_sensor_offset_x: Horizontal offset of X sensor from robot center (positive = right, in inches)
- * - x_sensor_offset_y: Vertical offset of X sensor from robot center (positive = forward, in inches)
- * - x_sensor_angle: Angle offset for X sensor (90° for left, 270° for right)
- * - y_sensor: Sensor to use for Y position (e.g., Rwall_distance_sensor or backSide)
- * - y_sensor_offset_x: Horizontal offset of Y sensor from robot center (positive = right, in inches)
- * - y_sensor_offset_y: Vertical offset of Y sensor from robot center (positive = forward, in inches)
- * - y_sensor_angle: Angle offset for Y sensor (0° for front, 180° for back)
- */
-void initializeFieldPosition(vex::distance& x_sensor, double x_sensor_offset_x, double x_sensor_offset_y, double x_sensor_angle, vex::distance& y_sensor, double y_sensor_offset_x, double y_sensor_offset_y, double y_sensor_angle) {
-    Brain.Screen.clearScreen();
-    // Reset X position using X sensor
-    resetPositionWithSensor(x_sensor, x_sensor_offset_x, x_sensor_offset_y, x_sensor_angle, field_half_width);
-    
-    // Reset Y position using Y sensor
-    resetPositionWithSensor(y_sensor, y_sensor_offset_x, y_sensor_offset_y, y_sensor_angle, field_half_length);
+/*void trackdistanceodom(bool left, bool right, bool back, bool front) {
+  double heading = getInertialHeading(); 
+  double left_offset = 270;
+  double right_offset = 90;
+  double back_offset = 180;
+  double front_offset = 0;
+  double sensor_heading = 0;
 
+  if (left) {
+    sensor_heading = heading + left_offset;
+    roundToNearest90(sensor_heading);
+    resetPositionLeft(sensor_heading);
+  } else if (right) {
+    sensor_heading = heading + right_offset;
+    roundToNearest90(sensor_heading);
+    resetPositionRight(sensor_heading);
+  } else if (back) {
+    sensor_heading = heading + back_offset;
+    roundToNearest90(sensor_heading);
+    resetPositionBack(sensor_heading);
+  } else if (front) {
+    sensor_heading = heading + front_offset;
+    roundToNearest90(sensor_heading);
+    resetPositionFront(frontsensor, -2.875, 7.5, sensor_heading);
+  }
+
+}*/
+
+void trackdistanceodom(bool left, bool right, bool back, bool front, bool FR) {
+    double heading = getInertialHeading(); 
+    double sensor_dir = 0;
+    double wall_angle = 0;
     
-    Brain.Screen.setCursor(6, 1);
-    Brain.Screen.print("Initialized position: X=%.2f, Y=%.2f", x_pos , y_pos );
-    
+    // Max allowable tilt before we ignore the sensor (in degrees)
+    const double TILT_THRESHOLD = 30; 
+
+    // --- LEFT SENSOR ---
+    if (left) {
+        sensor_dir = heading + 270.0;
+        normalizeTarget(sensor_dir);
+        wall_angle = roundToNearest90(sensor_dir);
+        Brain.Screen.setCursor(4, 1);
+        Brain.Screen.clearLine();
+        Brain.Screen.print("left wall angle:%.2f", wall_angle);
+        // Only reset if the robot is reasonably square to the wall
+        if (fabs(sensor_dir - wall_angle) < TILT_THRESHOLD) {
+            resetPositionLeft(wall_angle);
+        }
+    }
+
+    // --- RIGHT SENSOR ---
+    if (right) {
+        sensor_dir = heading + 90.0;
+        normalizeTarget(sensor_dir);
+        wall_angle = roundToNearest90(sensor_dir);
+        Brain.Screen.setCursor(5, 1);
+        Brain.Screen.clearLine();
+        Brain.Screen.print("right wall angle:%.2f", wall_angle);
+        
+        if (fabs(sensor_dir - wall_angle) < TILT_THRESHOLD) {
+            resetPositionRight(wall_angle); 
+        }
+    }
+
+    // --- BACK SENSOR ---
+    if (back) {
+        sensor_dir = heading + 180.0;
+        normalizeTarget(sensor_dir);
+        wall_angle = roundToNearest90(sensor_dir);
+        Brain.Screen.setCursor(6, 1);
+        Brain.Screen.clearLine();
+        Brain.Screen.print("back wall angle:%.2f", wall_angle);
+        if (fabs(sensor_dir - wall_angle) < TILT_THRESHOLD) {
+            resetPositionBack(wall_angle);
+        }
+    }
+
+    // --- FRONT SENSOR ---
+    if (front) {
+        sensor_dir = heading + 0.0;
+        normalizeTarget(sensor_dir);
+        wall_angle = roundToNearest90(sensor_dir);
+        Brain.Screen.setCursor(7, 1);
+        Brain.Screen.clearLine();
+        Brain.Screen.print("front wall angle:%.2f", wall_angle);
+        if (fabs(sensor_dir - wall_angle) < TILT_THRESHOLD) {
+            resetPositionFront(frontsensor, -2.875, 7.5, wall_angle);
+        }
+    }
+
+    // --- FRONT SENSOR ---
+    if (FR) {
+        sensor_dir = heading + 0.0;
+        normalizeTarget(sensor_dir);
+        wall_angle = roundToNearest90(sensor_dir);
+        Brain.Screen.setCursor(7, 1);
+        Brain.Screen.clearLine();
+        Brain.Screen.print("front wall angle:%.2f", wall_angle);
+        if (fabs(sensor_dir - wall_angle) < TILT_THRESHOLD) {
+            resetPositionFront(rightfront, 2.875, 7.5, wall_angle);
+        }
+    }
 }
+
+
 
 // Function to set LED brightness (0–255 → converted to percent)
 void lights(int _red, int _green, int _blue) {
