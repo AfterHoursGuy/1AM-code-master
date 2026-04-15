@@ -63,6 +63,7 @@ void sigsoloAWP(){
   inertial_sensor.setRotation(-90, degrees);
   correct_angle = -90;
   wings.set(true);
+  hood.set(false);
   intake_lift.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
@@ -78,13 +79,13 @@ void sigsoloAWP(){
   resetPositionFront(frontsensor, -2.875, 7.5, 180);
   resetPositionLeft(90);
   moveToPoint(58.5, -21, -1, 800, false, 11);
-  wings.set(false);
+  hood.set(true);
   scraper.set(false);
   wait(1000, msec);
   upper_intake.stop();
   correct_angle = 200;
   driveTo(6, 600, true, 12);
-  wings.set(true);
+  hood.set(false);
   turnToAngle(-60, 700);
   resetPositionBack(90);
   resetPositionLeft(180);
@@ -106,7 +107,7 @@ void sigsoloAWP(){
   moveToPoint(-48, -19, -1, 800, false, 11);
   resetPositionFront(frontsensor, -2.875, 7.5, 270);
   resetPositionRight(270);
-  wings.set(false);
+  hood.set(true);
   scraper.set(false);
   wait(800, msec);
   upper_intake.stop();
@@ -115,6 +116,7 @@ void sigsoloAWP(){
   turnToAngle(225, 500);
   driveTo(-40, 900, true, 12);
   upper_intake.spin(fwd, 80, pct);
+  hood.set(false);
   mid_goal.set(true);
 
 
@@ -177,47 +179,50 @@ void rightsidequal(){
  // /*
  resetChassis();
   wings.set(true);
+  hood.set(false);
   intake_lift.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
   thread([]{
     doinker(400);
   });
-  boomerang(10, 26, 1, 50, 0.44, 2000, false, 10.5);
-  turnToPoint(33, -15, 1, 600);
-  boomerang(32.25, -15, 1, 180, 0.4, 2000, true, 11);
+  boomerang(10, 23, 1, 50, 0.44, 2000, true, 10.5);
+  turnToPoint(28, -10, 1, 600);
+  boomerang(28, -10, 1, 180, 0.1, 1200, true, 11);
   turnToAngle(180, 200);
   driveToWall(6.5, 700, 0, true, 12);
   correct_angle = 182;
   driveTo(-35, 800, false, 12);
   wings.set(false);
+  hood.set(true);
   wait(700, msec);
   upper_intake.spin(fwd, -12, voltageUnits::volt);
   wait(80, msec);
   upper_intake.stop();
   scraper.set(false);
   driveTo(3, 600, false, 10);
+  hood.set(false);
   swing(359, 1, 1200, false, 9.2);
   correct_angle = 4;
-  driveTo(27, 100000, true, 12);
+  driveTo(24, 100000, true, 12);
   turnToAngle(-8, 700);
-  wait(4000, msec);
+  wait(3500, msec);
   resetPositionBack(180);
   resetPositionRight(90);
   wings.set(true);
+
   moveToPoint(35, -27, -1, 1000, true, 12);
   resetPositionBack(180);
   resetPositionRight(90);
   turnToAngle(-45, 400);
-  boomerang(10, -17, 1, -45, 0.2, 1000, true, 12);
-  scraper.set(true);
+  boomerang(12, -20, 1, -45, 0.3, 1000, true, 12);
   intake_lift.set(false);
   upper_intake.spin(fwd, -12, voltageUnits::volt);
   lower_intake.spin(fwd, -12, voltageUnits::volt);
-  wait(800, msec);
+  wait(750, msec);
   scraper.set(false);
   wings.set(false);
-  boomerang(37, -38, -1, 0, 0.4, 1500, true, 12);
+  boomerang(35, -39, -1, 0, 0.4, 1500, true, 12);
   // */
   
 
@@ -314,13 +319,10 @@ void skills() {
   resetChassis();
   inertial_sensor.setRotation(180, degrees);
   correct_angle = 180;
-
-  vex::task t(distanceTrackingTask);
-
-
    // /*
   
   wings.set(true);
+  hood.set(false);
   descore.set(true);
   intake_lift.set(true);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
@@ -335,22 +337,24 @@ void skills() {
   driveChassis(12, 12);
   wait(500, msec);
   driveChassis(0, 0);
-  wait(650, msec);
-  driveTo(-25, 1700);
+  wait(700, msec);
+  driveTo(-20, 1700);
   upper_intake.stop();
+  turnToAngle(180, 300);
+  resetPositionFront(rightfront, 2.875, 7.5, 180);
+  resetPositionRight(270);
+  moveToPoint(5, -32, -1, 900, true, 9);
   wait(10, msec);
   turnToAngle(90, 800);
   resetPositionFront(rightfront, 2.875, 7.5, 90);
   resetPositionRight(180);
-  descore.set(false);
-  moveToPoint(9, -30, 1, 1500, true, 8);
+  moveToPoint(13, -29, 1, 1500, true, 12);
   lower_intake.stop();
-  descore.set(true);
   turnToAngle(0, 500, true, 12);
   resetPositionBack(180);
   resetPositionRight(90);
   turnToAngle(-45, 400);
-  moveToPoint(12, -18, 1, 1000, true, 10);
+  moveToPoint(14.5, -18.5, 1, 1000, true, 10);
   turnToAngle(-45, 800);
   scraper.set(true);
   wait(100, msec);
@@ -362,7 +366,8 @@ void skills() {
   lower_intake.spin(reverse, 4, voltageUnits::volt);
   wait(1700, msec);
   scraper.set(false);
-  lower_intake.spin(reverse, 9.5, voltageUnits::volt);
+  driveTo(2, 800, true, 10);
+  lower_intake.spin(reverse, 11, voltageUnits::volt);
   driveTo(-17, 1600, true, 8);
   intake_lift.set(true);
   turnToAngle(-90, 800);
@@ -372,37 +377,39 @@ void skills() {
   wait(10, msec);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
-  boomerang(-12.5, -56, 1, 180, 0.53, 2000, true, 10.5);
+  thread([]{
+    doinker(1050);
+  });
+  boomerang(-13.5, -56, 1, 180, 0.58, 2000, true, 10.5);
   turnToAngle(180, 200);
   scraper.set(true);
   wait(100, msec);
   resetPositionFront(frontsensor, -2.875, 7.5, 180);
   resetPositionRight(270);
   wait(100, msec);
-  moveToPoint(-47, -55, 1, 800, true, 8);
+  moveToPoint(-46.25, -60, 1, 800, true, 8);
   turnToAngle(180, 300);
-  driveToWall(7, 1300, 0, true, 12);
+  driveToWall(6.2, 825, 0, true, 12);
 
   boomerang(-60, -23, -1, 180, 0.3, 1000, true, 11);
   turnToAngle(180, 200);
   scraper.set(false);
   upper_intake.stop();
   lower_intake.stop();
-  moveToPoint(-54.5, 20, -1, 2000, true, 10);
+  moveToPoint(-54.5, 11, -1, 2000, true, 10);
   wait(50, msec);
   turnToAngle(-90, 500);
   resetPositionFront(frontsensor, -2.875, 7.5, 270);
   resetPositionRight(0);
-  moveToPoint(-48, 28, -1, 1000, true, 10);
-  turnToAngle(0, 500);
+  moveToPoint(-49, 27, -1, 700, true, 10);
+  turnToAngle(0, 400);
   thread([]{
     upper_intake.spin(fwd, -12, voltageUnits::volt);
     wait(400, msec);
     upper_intake.stop(hold);
   });
-  driveTo(-100, 700, false, 10);
-  wings.set(false);
-  descore.set(true);
+  driveTo(-100, 300, false, 10);
+  hood.set(true);
   wait(100, msec);
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
@@ -411,22 +418,20 @@ void skills() {
   resetPositionFront(frontsensor, -2.875, 7.5, 0);
   resetPositionLeft(270);
   scraper.set(true);
-  descore.set(false);
   upper_intake.stop();
-  moveToPoint(-53, 52, 1, 1000, true, 12);
+  moveToPoint(-54.75, 52, 1, 1000, true, 12);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
-  wings.set(true);
-  driveToWall(7.5, 1400, 0, true, 12);
+  hood.set(false);
+  driveToWall(7.5, 850, 0, true, 12);
 
   turnToAngle(0, 300);
   wait(100, msec);
   resetPositionFront(frontsensor, -2.875, 7.5, 0);
   resetPositionLeft(270);
   wait(100, msec);
-  moveToPoint(-56.5, 22, -1, 1000, false, 11);
-  descore.set(true);
+  moveToPoint(-56, 22, -1, 1000, false, 11);
   upper_intake.spin(fwd, -12, voltageUnits::volt);
-  wings.set(false);
+  hood.set(true);
   wait(100, msec);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
   wait(1500, msec);
@@ -435,20 +440,19 @@ void skills() {
   lower_intake.spin(fwd, 12, voltageUnits::volt);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
   intake_lift.set(true);
-  descore.set(true);
   resetPositionFront(frontsensor, -2.875, 7.5, 0);
   resetPositionLeft(270);
-  boomerang(-40, 53.5, 1, 85, 0.3, 2000, true, 11);
-  boomerang(-24.5, 53.5, 1, 90, 0.1, 2000, true, 11);
+  boomerang(-40, 52.5, 1, 85, 0.3, 2000, true, 11);
+  boomerang(-23, 54.5, 1, 90, 0.1, 2000, true, 9.5);
   turnToAngle(90, 500);
   wait(75, msec);
-  descore.set(false);
-  wings.set(true);
-  driveChassis(7, 7);
-  wait(800, msec);
+  hood.set(false);
+  driveChassis(7.5, 7.5);
+  wait(875, msec);
   driveChassis(0, 0);
-  wait(500, msec);
-  driveChassis(8.5, 8.5);
+  turnToAngle(90, 500);
+  wait(300, msec);
+  driveChassis(8.7, 8.5);
   wait(950, msec);
   scraper.set(true);
   driveChassis(0, 0);
@@ -456,18 +460,17 @@ void skills() {
   turnToAngle(90, 300);
   resetPositionLeft(0);
   resetPositionFront(rightfront, 2.875, 7.5, 90);
-  moveToPoint(24, 64, -1, 1200, true, 10);
-  turnToAngle(180, 800);
-  descore.set(false);
+  moveToPoint(20, 62, -1, 1000, true, 11);
+  turnToAngle(180, 900);
   scraper.set(false);
   resetPositionBack(0);
   resetPositionLeft(90);
-  moveToPoint(22, 33, 1, 1000, true, 7);
+  wait(10, msec);
+  moveToPoint(25.5, 34, 1, 1000, true, 7);
+  lower_intake.stop();
   turnToAngle(180, 300);
   resetPositionBack(0);
   resetPositionLeft(90);
-  lower_intake.stop();
-  descore.set(true);
   turnToAngle(45, 700, true, 10);
 
   scraper.set(true);
@@ -479,52 +482,53 @@ void skills() {
     wait(400, msec);
     upper_intake.stop(hold);
   });
-  moveToPoint(8, 16, -1, 1000, true, 7);
-  turnToAngle(45, 500);
-  lower_intake.spin(fwd, 11, voltageUnits::volt);
+  boomerang(8.5, 11, -1, 45, 0.3, 1000, true, 6);
+  swing(45, -1, 600, true, 12);
+  lower_intake.spin(fwd, 9.5, voltageUnits::volt);
   mid_goal.set(true);
-  wait(60, msec);
-  upper_intake.spin(fwd, 40, pct);
-  wait(1500, msec);
   driveTo(1.5, 200, true, 4);
   upper_intake.spin(fwd, 30, pct);
-  wait(1500, msec);
+  wait(3000, msec);
   upper_intake.stop();
   driveTo(-1, 400, true, 2.5);
   thread([]{
     wait(200, msec);
     upper_intake.spin(fwd, 12, voltageUnits::volt);
   });
-  boomerang(38, 55, 1, 0, 0.1, 2000, true, 11);
+  scraper.set(false);
+  correct_angle = 53;
+  driveTo(27, 800, true, 11);
   mid_goal.set(false);
   scraper.set(true);
-  turnToAngle(0, 800);
-  wait(50, msec);
+  turnToAngle(0, 600);
+  wait(10, msec);
   resetPositionFront(frontsensor, -2.875, 7.5, 0);
   resetPositionRight(90);
-  wait(50, msec);
-  moveToPoint(48, 61, 1, 800, false, 12);
-  driveToWall(8, 1300, 0, true, 12);
+  wait(10, msec);
+  moveToPoint(48, 70, 1, 1000, true, 12);
+  driveToWall(6.5, 1300, 0, true, 12);
+  descore.set(true);
 
 
   wait(50, msec);
   resetPositionFront(frontsensor, -2.875, 7.5, 0);
   resetPositionRight(90);
   wait(50, msec);
-  boomerang(60, 26, -1, 0, 0.3, 1200, false, 10);
+  boomerang(60, 26, -1, 0, 0.3, 1200, false, 12);
   scraper.set(false);
-  moveToPoint(55, -20, -1, 1400, true, 11.5);
+  moveToPoint(55, -13, -1, 1400, true, 12);
   wait(100, msec);
   turnToAngle(90, 500);
-  driveToWallRight(18.5, 800, 0, true, 12);
-  turnToAngle(180, 500);
+  resetPositionFront(frontsensor, -2.875, 7.5, 90);
+  resetPositionRight(180);
+  moveToPoint(48, -20, -1, 800, false, 12);
   thread([]{
     upper_intake.spin(fwd, -12, voltageUnits::volt);
     wait(200, msec);
     upper_intake.stop(hold);
   });
-  driveTo(-18, 1100, false, 12);
-  wings.set(false);
+  driveTo(-18, 600, false, 12);
+  hood.set(true);
   wait(100, msec);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
   resetPositionFront(frontsensor, -2.875, 7.5, 180);
@@ -534,7 +538,7 @@ void skills() {
   upper_intake.stop();
   moveToPoint(55, -52, 1, 1000, true, 12);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
-  wings.set(true);
+  hood.set(false);
   driveToWall(8, 1300, 0, true, 12);
   resetPositionFront(frontsensor, -2.875, 7.5, 180);
   resetPositionLeft(90);
@@ -543,15 +547,14 @@ void skills() {
     wait(300, msec);
     upper_intake.stop(hold);
   });
-  moveToPoint(54, -24, -1, 1000, false, 12);
-  wings.set(false);
-  wait(100, msec);
+  moveToPoint(56.5, -24, -1, 1000, false, 12);
+  hood.set(true);
+  wait(50, msec);
   upper_intake.spin(fwd, 12, voltageUnits::volt);
-  wait(1600, msec);
+  wait(1500, msec);
   resetPositionFront(frontsensor, -2.875, 7.5, 180);
   resetPositionLeft(90);
   scraper.set(false);
-  descore.set(true);
   boomerang(27, -56, 1, -90, 0.3, 2000, false, 12);
   correct_angle = -90;
   driveTo(20, 20000, true, 12); 
@@ -865,16 +868,16 @@ void elimright(){
   boomerang(10, 26, 1, 50, 0.44, 2000, false, 10.5);
 
   //4 Ball 
-  
+  /*
   turnToPoint(33, 0, 1, 400);
   boomerang(33, 0, 1, 180, 0.1, 2000, false, 11);
   turnToAngle(180, 200);
   driveTo(-80, 600, true, 12);
   wings.set(false);
-  wait(800, msec);
+  wait(800, msec);*/
 
   //7 Ball 
-  /*
+  
   turnToPoint(33, -15, 1, 600);
   boomerang(33, -15, 1, 180, 0.4, 2000, true, 11);
   turnToAngle(180, 200);
@@ -883,12 +886,12 @@ void elimright(){
   driveTo(-35, 800, false, 12);
   wings.set(false);
   wait(1200, msec);
-  */
+  
 
   //Ending
   scraper.set(false);
   driveTo(3, 600, false, 10);
   swing(359, 1, 1200, true, 9.5);
   correct_angle = 3;
-  driveTo(28, 100000, true, 12);
+  driveTo(28, 100000, true, 6);
 }

@@ -22,7 +22,7 @@ motor left_chassis2 = motor(PORT12, ratio6_1, true);
 motor left_chassis3 = motor(PORT13, ratio6_1, true);
 motor_group left_chassis = motor_group(left_chassis1, left_chassis2, left_chassis3);
 motor right_chassis1 = motor(PORT19, ratio6_1, false);
-motor right_chassis2 = motor(PORT15, ratio6_1, false);
+motor right_chassis2 = motor(PORT3, ratio6_1, false);
 motor right_chassis3 = motor(PORT16, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
@@ -49,10 +49,12 @@ digital_out scraper = digital_out(Brain.ThreeWirePort.E);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
 digital_out descore = digital_out(Brain.ThreeWirePort.F);
 digital_out wings = digital_out(Brain.ThreeWirePort.C);
+digital_out wingF = digital_out(Brain.ThreeWirePort.D);
 digital_out intake_lift = digital_out(Brain.ThreeWirePort.H);
-motor29 RED1 = motor29(Brain.ThreeWirePort.G);
-motor29 BLUE1 = motor29(Brain.ThreeWirePort.G);
-motor29 GREEN1 = motor29(Brain.ThreeWirePort.G);
+digital_out hood = digital_out(Brain.ThreeWirePort.G);
+motor29 RED1 = motor29(Brain.ThreeWirePort.A);
+motor29 BLUE1 = motor29(Brain.ThreeWirePort.A);
+motor29 GREEN1 = motor29(Brain.ThreeWirePort.A);
 
 // ============================================================================
 // USER-CONFIGURABLE PARAMETERS (CHANGE BEFORE USING THIS TEMPLATE)

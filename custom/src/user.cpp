@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 7; // change this to select different autonomous routines
+  int auton_selected = 4; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -63,11 +63,24 @@ bool scraperState = false;
 bool middleGoalState = false;
 bool parkPistonState = false;
 bool wingState = false;
+bool wingFState = false;
+static bool swapPrev = false;
 
-static bool intakeToggle = false;
+//static bool intakeToggle = false;
 bool btnPrev = false;
 int pressStart = 0;
 bool longPress = false;
+
+bool r1Prev = false;
+uint32_t lastR1ReleaseTime = 0;
+bool isDoublePress = false;
+const int doubleClickWindow = 250; // Milliseconds to wait for second click
+
+// --- L1 Toggle & Long Press Variables ---
+bool intakeToggle = false;    // Keeps track of whether the intake is "on"
+bool btnPrevL1 = false;      // Stores the state of L1 from the previous loop
+uint32_t pressStartL1 = 0;   // The timestamp when L1 was first pressed
+bool longPressL1 = false;    // Flag to indicate if L1 has been held long enough
 
 
 void runDriver() {
@@ -106,86 +119,98 @@ void runDriver() {
     double rightPower = expoDrive(ch2, 1.4) * 0.12;  
     driveChassis(leftPower, rightPower);
 
-    if (button_b) {
-      resetPositionBack(180);
+bool btnL1 = controller_1.ButtonL1.pressing();
+bool btnR1 = controller_1.ButtonR1.pressing();
 
+// --- L1 Logic (Toggle/Reverse) ---
+if (btnL1 && !btnPrevL1) {
+    pressStartL1 = Brain.timer(msec);
+    longPressL1 = false;
+}
+if (btnL1 && !longPressL1 && Brain.timer(msec) - pressStartL1 > 200) {
+    longPressL1 = true;
+}
+if (!btnL1 && btnPrevL1) {
+    if (!longPressL1) intakeToggle = !intakeToggle;
+}
+btnPrevL1 = btnL1;
+
+// --- R1 Double Press Logic ---
+if (btnR1 && !r1Prev) {
+    // If we press again within the window, it's a double press
+    if (Brain.timer(msec) - lastR1ReleaseTime < doubleClickWindow) {
+        isDoublePress = true;
+    } else {
+        isDoublePress = false;
     }
+}
+if (!btnR1 && r1Prev) {
+    lastR1ReleaseTime = Brain.timer(msec);
+}
+r1Prev = btnR1;
 
-    if (button_a) {
-      resetPositionRight(90);
-    }
+// --- Combined Motor Behavior ---
 
-    bool btn = controller_1.ButtonL1.pressing();
-
-    // Button pressed this moment
-    if (btn && !btnPrev) {
-        pressStart = Brain.timer(msec);
-        longPress = false;
-    }
-
-    // If held long enough → reverse
-    if (btn && !longPress && Brain.timer(msec) - pressStart > 200) {
-        longPress = true;
-    }
-
-    // Handle release
-    if (!btn && btnPrev) {
-        if (!longPress) {
-            // short press → toggle
-            intakeToggle = !intakeToggle;
-        }
-        // if longPress: do nothing → return to toggle state
-    }
-
-    // Apply motor behavior
-    if (longPress && btn) {
-        // reverse while holding long press
-        intake_lift.set(false);
-        lower_intake.spin(reverse, 5, voltageUnits::volt); //CHANGE FOR SKILLS 5 volts
-        upper_intake.spin(reverse, 7, voltageUnits::volt); //CHANGE FOR SKILLS 7 volts
-    }
-    else if (intakeToggle) {
-        // normal toggle state
-        mid_goal.set(false);
-        wings.set(true);
-        intake_lift.set(true);
-        lower_intake.spin(forward, 12, voltageUnits::volt);
-        upper_intake.spin(forward, 12, voltageUnits::volt);
-    } else if (r1) {
-        wings.set(false);
-        mid_goal.set(false);
-        lower_intake.spin(forward, 12, voltageUnits::volt);
-        upper_intake.spin(forward, 12, voltageUnits::volt);
-    } else if (r2) {
-        wings.set(true);
-        mid_goal.set(true);
-        lower_intake.spin(forward, 9, voltageUnits::volt); // CHANGE FOR SKILLS 10 volts
-        upper_intake.spin(forward, 35, pct); //CHANGE FOR SKILLS 40 Percent
-    }
-    else if (!intaken && !r1 && !r2) {  
-        mid_goal.set(false);
-        intake_lift.set(true);
-        lower_intake.stop(coast);
-        upper_intake.stop(coast);
-    }
-
-
-    btnPrev = btn;
+if (longPressL1 && btnL1) {
+    // REVERSE (L1 Hold)
+    intake_lift.set(false);
+    lower_intake.spin(reverse, 5, volt); 
+    upper_intake.spin(reverse, 7, volt);
+} 
+else if (btnR1 && isDoublePress) {
+    // R2 COMMANDS (Triggered by R1 Double Press + Hold)
+    hood.set(false);
+    mid_goal.set(true);
+    lower_intake.spin(forward, 10, volt); 
+    upper_intake.spin(forward, 35, pct);
+}
+else if (btnR1 && !isDoublePress) {
+    // R1 COMMANDS (Triggered by R1 Single Press + Hold)
+    hood.set(true);
+    mid_goal.set(false);
+    lower_intake.spin(forward, 12, volt);
+    upper_intake.spin(forward, 12, volt);
+}
+else if (intakeToggle) {
+    // NORMAL TOGGLE (L1 Short Press)
+    mid_goal.set(false);
+    hood.set(false);
+    intake_lift.set(true);
+    lower_intake.spin(forward, 12, volt);
+    upper_intake.spin(forward, 12, volt);
+} 
+else {
+    // DEFAULT IDLE (Nothing pressed/toggled)
+    mid_goal.set(false);
+    hood.set(false);
+    intake_lift.set(true);
+    lower_intake.stop(coast);
+    upper_intake.stop(coast);
+}
     
-
+    
     // Scraper toggle on L2
-    static bool l2Prev = false;
-    if (l2 && !l2Prev) {   // button press event
+    static bool button_up_arrowPrev = false;
+    if (button_up_arrow && !button_up_arrowPrev) {   // button press event
       scraperState = !scraperState;
       scraper.set(scraperState);
     }
-    l2Prev = l2;
+    button_up_arrowPrev = button_up_arrow;
+
+    
 
     // Right arrow toggle for Middle goal
-    static bool rightPrev = false;
-    if (button_right_arrow && !rightPrev) {
+    static bool r2Prev = false;
+    if (r2 && !r2Prev) {
     middleGoalState = !middleGoalState;
     descore.set(middleGoalState);
+    }
+    r2Prev = r2;
+
+    static bool rightPrev = false;
+    if (button_right_arrow && !rightPrev) {
+    wingFState = !wingFState;
+    wingF.set(wingFState);
     }
     rightPrev = button_right_arrow;
 
@@ -195,6 +220,17 @@ void runDriver() {
     wings.set(wingState);
     }
     yPrev = button_y;
+
+    if (l2 && !swapPrev) {
+    // Flip both states
+    wingFState = !wingFState;
+    wingState = !wingFState; // Set wingState to the opposite of the new wingFState
+
+    // Apply to the solenoids/motors
+    wingF.set(wingFState);
+    wings.set(wingState);
+}
+swapPrev = l2;
 
     wait(10, msec); 
   }
