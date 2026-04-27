@@ -6,7 +6,7 @@
 // Modify autonomous, driver, or pre-auton code below
 
 void runAutonomous() {
-  int auton_selected = 4; // change this to select different autonomous routines
+  int auton_selected = 9; // change this to select different autonomous routines
   switch(auton_selected) {
     case 1:
       exampleAuton();
@@ -74,7 +74,7 @@ bool longPress = false;
 bool r1Prev = false;
 uint32_t lastR1ReleaseTime = 0;
 bool isDoublePress = false;
-const int doubleClickWindow = 250; // Milliseconds to wait for second click
+//const int doubleClickWindow = 250; // Milliseconds to wait for second click
 
 // --- L1 Toggle & Long Press Variables ---
 bool intakeToggle = false;    // Keeps track of whether the intake is "on"
@@ -119,7 +119,9 @@ void runDriver() {
     double rightPower = expoDrive(ch2, 1.4) * 0.12;  
     driveChassis(leftPower, rightPower);
 
-bool btnL1 = controller_1.ButtonL1.pressing();
+
+
+/*bool btnL1 = controller_1.ButtonL1.pressing();
 bool btnR1 = controller_1.ButtonR1.pressing();
 
 // --- L1 Logic (Toggle/Reverse) ---
@@ -186,40 +188,96 @@ else {
     intake_lift.set(true);
     lower_intake.stop(coast);
     upper_intake.stop(coast);
+} */
+
+bool btnL1 = controller_1.ButtonL1.pressing();
+bool btnR1 = controller_1.ButtonR1.pressing();
+bool btnR2 = controller_1.ButtonR2.pressing(); // Added R2 check
+
+// --- L1 Logic (Toggle/Reverse) ---
+if (btnL1 && !btnPrevL1) {
+    pressStartL1 = Brain.timer(msec);
+    longPressL1 = false;
+}
+if (btnL1 && !longPressL1 && Brain.timer(msec) - pressStartL1 > 200) {
+    longPressL1 = true;
+}
+if (!btnL1 && btnPrevL1) {
+    if (!longPressL1) intakeToggle = !intakeToggle;
+}
+btnPrevL1 = btnL1;
+
+// --- Combined Motor Behavior ---
+
+if (longPressL1 && btnL1) {
+    // REVERSE (L1 Hold)
+    intake_lift.set(false);
+    lower_intake.spin(reverse, 12, volt); //5
+    upper_intake.spin(reverse, 12, volt); //7
+} 
+else if (btnR2) {
+    // R2 COMMANDS (Now triggered by a simple R2 hold)
+    hood.set(false);
+    mid_goal.set(true);
+    lower_intake.spin(forward, 12, volt); // 10
+    upper_intake.spin(forward, 100, pct); // 35
+}
+else if (btnR1) {
+    // R1 COMMANDS (Triggered by R1 Hold)
+    hood.set(true);
+    mid_goal.set(false);
+    lower_intake.spin(forward, 12, volt);
+    upper_intake.spin(forward, 12, volt);
+}
+else if (intakeToggle) {
+    // NORMAL TOGGLE (L1 Short Press)
+    mid_goal.set(false);
+    hood.set(false);
+    intake_lift.set(true);
+    lower_intake.spin(forward, 12, volt);
+    upper_intake.spin(forward, 12, volt);
+} 
+else {
+    // DEFAULT IDLE
+    mid_goal.set(false);
+    hood.set(false);
+    intake_lift.set(true);
+    lower_intake.stop(coast);
+    upper_intake.stop(coast);
 }
     
     
     // Scraper toggle on L2
-    static bool button_up_arrowPrev = false;
-    if (button_up_arrow && !button_up_arrowPrev) {   // button press event
+    static bool yPrev = false;
+    if (button_y && !yPrev) {   // button press event
       scraperState = !scraperState;
       scraper.set(scraperState);
     }
-    button_up_arrowPrev = button_up_arrow;
+    yPrev = button_y;
 
     
 
     // Right arrow toggle for Middle goal
-    static bool r2Prev = false;
-    if (r2 && !r2Prev) {
+    static bool rightPrev = false;
+    if (button_right_arrow && !rightPrev) {
     middleGoalState = !middleGoalState;
     descore.set(middleGoalState);
     }
-    r2Prev = r2;
+    rightPrev = button_right_arrow;
 
-    static bool rightPrev = false;
-    if (button_right_arrow && !rightPrev) {
+    static bool downPrev = false;
+    if (button_down_arrow && !downPrev) {
     wingFState = !wingFState;
     wingF.set(wingFState);
     }
-    rightPrev = button_right_arrow;
+    downPrev = button_down_arrow;
 
-    static bool yPrev = false;
-    if (button_y && !yPrev) {
+    static bool bPrev = false;
+    if (button_b && !bPrev) {
     wingState = !wingState;
     wings.set(wingState);
     }
-    yPrev = button_y;
+    bPrev = button_b;
 
     if (l2 && !swapPrev) {
     // Flip both states

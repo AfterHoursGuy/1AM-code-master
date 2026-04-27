@@ -17,7 +17,7 @@ controller controller_1 = controller(primary);
 // all chassis motors should be reversed appropriately so that they spin vertical when given a positive voltage input
 // such as driveChassis(12, 12)
 
-motor left_chassis1 = motor(PORT7, ratio6_1, true);
+motor left_chassis1 = motor(PORT10, ratio6_1, true);
 motor left_chassis2 = motor(PORT12, ratio6_1, true);
 motor left_chassis3 = motor(PORT13, ratio6_1, true);
 motor_group left_chassis = motor_group(left_chassis1, left_chassis2, left_chassis3);
@@ -27,13 +27,13 @@ motor right_chassis3 = motor(PORT16, ratio6_1, false);
 motor_group right_chassis = motor_group(right_chassis1, right_chassis2, right_chassis3);
 
 rotation stick_rotation = rotation(PORT1);
-inertial inertial_sensor = inertial(PORT5);
+inertial inertial_sensor = inertial(PORT4);
 optical block_counter_lower = optical(PORT5);
 optical block_counter_upper = optical(PORT5);
-distance rightfront = distance(PORT4);
-distance frontsensor = distance(PORT10);
-distance rightSide = distance(PORT8);
-distance leftSide = distance(PORT9);
+distance rightfront = distance(PORT2);
+distance frontsensor = distance(PORT7);
+distance rightSide = distance(PORT6);
+distance leftSide = distance(PORT8); 
 distance backSide = distance(PORT20);
 digital_out example_piston = digital_out(Brain.ThreeWirePort.G);
 
@@ -43,7 +43,7 @@ rotation horizontal_tracker = rotation(PORT1, true);
 rotation vertical_tracker = rotation(PORT1, true);
 
 // other devices
-motor lower_intake = motor(PORT6, ratio6_1, false);
+motor lower_intake = motor(PORT5, ratio6_1, false);
 motor upper_intake = motor(PORT17, ratio6_1, true);
 digital_out scraper = digital_out(Brain.ThreeWirePort.E);
 digital_out mid_goal = digital_out(Brain.ThreeWirePort.B);
